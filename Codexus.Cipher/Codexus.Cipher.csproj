@@ -6,7 +6,6 @@
     <RootNamespace>Codexus.Cipher</RootNamespace>
     <AssemblyName>Codexus.Cipher</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <FileAlignment>512</FileAlignment>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   
