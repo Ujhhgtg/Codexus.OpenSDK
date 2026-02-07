@@ -274,8 +274,7 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 	                    certificate, gameId, version, modList, accessToken, 
 	                    int.Parse(userId), user.AccessToken, 
 	                    "45.253.165.190", NetEaseConnection.RandomAuthPort(),
-	                    () => { responseCode = 0; }, // On Success: set responseCode to 0
-	                    null, null
+	                    () => { responseCode = 0; }
 	                ).ConfigureAwait(false);
 	            }
 	        }
@@ -301,11 +300,11 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 	private async Task<string> ReadPrefixedStringAsync(NetworkStream stream, Encoding encoding, CancellationToken token)
 	{
 	    var lenBuf = new byte[4];
-	    await AuthLibProtocol.ReadExactAsync(stream, lenBuf, 0, 4, token).ConfigureAwait(false);
+	    await ReadExactAsync(stream, lenBuf, 0, 4, token).ConfigureAwait(false);
 	    var length = BitConverter.ToInt32(lenBuf, 0);
 
 	    var buffer = new byte[length];
-	    await AuthLibProtocol.ReadExactAsync(stream, buffer, 0, length, token).ConfigureAwait(false);
+	    await ReadExactAsync(stream, buffer, 0, length, token).ConfigureAwait(false);
 	    return encoding.GetString(buffer);
 	}
 

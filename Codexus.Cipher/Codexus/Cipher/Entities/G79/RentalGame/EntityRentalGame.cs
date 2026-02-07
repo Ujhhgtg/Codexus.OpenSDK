@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79.RentalGame;
 
@@ -37,7 +35,4 @@ public class EntityRentalGame
 	public string ServerName { get; set; }
 
 	// Token: 0x0600057E RID: 1406 RVA: 0x0000A74C File Offset: 0x0000894C
-	public EntityRentalGame()
-	{
-	}
 }

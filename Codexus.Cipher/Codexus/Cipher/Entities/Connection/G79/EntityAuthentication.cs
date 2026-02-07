@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.Connection.G79;
 
@@ -16,7 +14,4 @@ public class EntityAuthentication
 	public required string Body { get; set; }
 
 	// Token: 0x060005E6 RID: 1510 RVA: 0x0000AB4F File Offset: 0x00008D4F
-	public EntityAuthentication()
-	{
-	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.MPay;
 
@@ -35,7 +33,4 @@ public class EntityMPayUserResponse
 	public EntityMPayUser User { get; set; } = new();
 
 	// Token: 0x060004B6 RID: 1206 RVA: 0x00009F31 File Offset: 0x00008131
-	public EntityMPayUserResponse()
-	{
-	}
 }

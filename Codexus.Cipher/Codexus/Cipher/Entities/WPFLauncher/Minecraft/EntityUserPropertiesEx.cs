@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.Minecraft;
 
@@ -44,7 +42,4 @@ public class EntityUserPropertiesEx
 	public string LauncherVersion { get; set; }
 
 	// Token: 0x06000455 RID: 1109 RVA: 0x000099AA File Offset: 0x00007BAA
-	public EntityUserPropertiesEx()
-	{
-	}
 }

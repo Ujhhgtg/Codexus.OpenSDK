@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
@@ -51,7 +49,4 @@ public class EntityNetGameRequest
 	public string SecondaryTypeId { get; set; }
 
 	// Token: 0x06000363 RID: 867 RVA: 0x0000906B File Offset: 0x0000726B
-	public EntityNetGameRequest()
-	{
-	}
 }

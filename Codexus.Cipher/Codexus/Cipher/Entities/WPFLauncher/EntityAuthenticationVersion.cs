@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
 
@@ -28,7 +26,4 @@ public class EntityAuthenticationVersion
 	public string UpdaterMd5 { get; set; } = string.Empty;
 
 	// Token: 0x06000211 RID: 529 RVA: 0x00008226 File Offset: 0x00006426
-	public EntityAuthenticationVersion()
-	{
-	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
@@ -48,7 +46,4 @@ public class EntityCreateCharacter
 	public int ExpireTime { get; set; }
 
 	// Token: 0x06000319 RID: 793 RVA: 0x00008D2A File Offset: 0x00006F2A
-	public EntityCreateCharacter()
-	{
-	}
 }

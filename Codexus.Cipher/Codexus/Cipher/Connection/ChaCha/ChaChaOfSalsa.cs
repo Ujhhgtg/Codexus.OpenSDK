@@ -15,7 +15,7 @@ public sealed class ChaChaOfSalsa : ChaCha7539Engine
 		{
 			var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(6, 1);
 			defaultInterpolatedStringHandler.AppendLiteral("ChaCha");
-			defaultInterpolatedStringHandler.AppendFormatted(this.rounds);
+			defaultInterpolatedStringHandler.AppendFormatted(rounds);
 			return defaultInterpolatedStringHandler.ToStringAndClear();
 		}
 	}
@@ -24,6 +24,6 @@ public sealed class ChaChaOfSalsa : ChaCha7539Engine
 	public ChaChaOfSalsa(byte[] key, byte[] iv, bool encryption, int rounds = 8)
 	{
 		this.rounds = rounds;
-		this.Init(encryption, new ParametersWithIV(new KeyParameter(key), iv));
+		Init(encryption, new ParametersWithIV(new KeyParameter(key), iv));
 	}
 }

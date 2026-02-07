@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Codexus.Cipher.Utils;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
@@ -140,7 +138,4 @@ public class EntityAuthenticationDetail
 	public string OsDetail { get; set; } = "10.0.26100";
 
 	// Token: 0x060001C4 RID: 452 RVA: 0x00007E3C File Offset: 0x0000603C
-	public EntityAuthenticationDetail()
-	{
-	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79.NetGame;
@@ -31,7 +29,4 @@ public class EntityNetGame
 	public required int CampaignId { get; set; }
 
 	// Token: 0x06000596 RID: 1430 RVA: 0x0000A81A File Offset: 0x00008A1A
-	public EntityNetGame()
-	{
-	}
 }

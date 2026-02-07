@@ -163,6 +163,7 @@
 // 		
 // 	private static CancellationTokenSource _cancellationTokenSource;
 // }
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -173,102 +174,101 @@ using System.Threading.Tasks;
 using Codexus.Development.SDK.Utils;
 using Serilog;
 
-namespace Codexus.Cipher.Extensions.Com4399Extensions
+namespace Codexus.Cipher.Extensions.Com4399Extensions;
+
+public static class CaptchaHandler
 {
-    public static class CaptchaHandler
+    // Properties used by the UI/Web Server to show the images
+    public static string BackgroundImageBase64 { get; private set; } = "";
+    public static string SliderImageBase64 { get; private set; } = "";
+    public static string ClickableText { get; private set; } = "";
+    public static string CurrentCaptchaType { get; private set; } = "jigsaw";
+
+    private static TaskCompletionSource<string> _captchaTaskCompletionSource;
+    private static CancellationTokenSource _cancellationTokenSource;
+
+    /// <summary>
+    /// Called by the local HTTP server when the user finishes solving the captcha.
+    /// </summary>
+    public static void SetCaptchaResult(string data)
     {
-        // Properties used by the UI/Web Server to show the images
-        public static string BackgroundImageBase64 { get; private set; } = "";
-        public static string SliderImageBase64 { get; private set; } = "";
-        public static string ClickableText { get; private set; } = "";
-        public static string CurrentCaptchaType { get; private set; } = "jigsaw";
+        _captchaTaskCompletionSource?.TrySetResult(data);
+    }
 
-        private static TaskCompletionSource<string> _captchaTaskCompletionSource;
-        private static CancellationTokenSource _cancellationTokenSource;
-
-        /// <summary>
-        /// Called by the local HTTP server when the user finishes solving the captcha.
-        /// </summary>
-        public static void SetCaptchaResult(string data)
-        {
-            _captchaTaskCompletionSource?.TrySetResult(data);
-        }
-
-        public static async Task<string> HandleLoginCaptchaAsync(string resultJson)
-        {
-            // resultJson likely contains the initial captcha token or URL from the API
-            // Here you would parse resultJson and decide which handler to call.
-            // Simplified logic:
-            ResetCaptchaState();
+    public static async Task<string> HandleLoginCaptchaAsync(string resultJson)
+    {
+        // resultJson likely contains the initial captcha token or URL from the API
+        // Here you would parse resultJson and decide which handler to call.
+        // Simplified logic:
+        ResetCaptchaState();
             
-            // Logic to launch server and wait
-            await StartCaptchaServerAsync();
-            return await WaitForCaptchaCompletionAsync();
-        }
+        // Logic to launch server and wait
+        await StartCaptchaServerAsync();
+        return await WaitForCaptchaCompletionAsync();
+    }
 
-        private static async Task<string> WaitForCaptchaCompletionAsync(int timeoutSeconds = 300)
+    private static async Task<string> WaitForCaptchaCompletionAsync(int timeoutSeconds = 300)
+    {
+        _captchaTaskCompletionSource = new TaskCompletionSource<string>();
+        _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+
+        // Link the cancellation token to the TaskCompletionSource
+        using (_cancellationTokenSource.Token.Register(() => _captchaTaskCompletionSource.TrySetCanceled()))
         {
-            _captchaTaskCompletionSource = new TaskCompletionSource<string>();
-            _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
-
-            // Link the cancellation token to the TaskCompletionSource
-            using (_cancellationTokenSource.Token.Register(() => _captchaTaskCompletionSource.TrySetCanceled()))
+            try
             {
-                try
-                {
-                    return await _captchaTaskCompletionSource.Task;
-                }
-                catch (OperationCanceledException)
-                {
-                    throw new TimeoutException($"Captcha verification timeout after {timeoutSeconds} seconds");
-                }
+                return await _captchaTaskCompletionSource.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                throw new TimeoutException($"Captcha verification timeout after {timeoutSeconds} seconds");
             }
         }
+    }
 
-        private static async Task<CaptchaHttpServer> StartCaptchaServerAsync()
+    private static async Task<CaptchaHttpServer> StartCaptchaServerAsync()
+    {
+        var port = NetworkUtil.GetAvailablePort();
+        while (true)
         {
-            var port = NetworkUtil.GetAvailablePort();
-            while (true)
+            try
             {
-                try
+                var server = new CaptchaHttpServer(port);
+                await server.StartAsync();
+                    
+                Log.Information("Captcha HTTP server started on port {Port}", port);
+                    
+                var url = $"http://127.0.0.1:{port}/";
+                Process.Start(new ProcessStartInfo
                 {
-                    var server = new CaptchaHttpServer(port);
-                    await server.StartAsync();
+                    FileName = url,
+                    UseShellExecute = true
+                });
                     
-                    Log.Information("Captcha HTTP server started on port {Port}", port);
-                    
-                    var url = $"http://127.0.0.1:{port}/";
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = url,
-                        UseShellExecute = true
-                    });
-                    
-                    return server;
-                }
-                catch (HttpListenerException)
-                {
-                    port = NetworkUtil.GetAvailablePort(); // Try another port if busy
-                }
+                return server;
+            }
+            catch (HttpListenerException)
+            {
+                port = NetworkUtil.GetAvailablePort(); // Try another port if busy
             }
         }
+    }
 
-        private static void ResetCaptchaState()
-        {
-            BackgroundImageBase64 = "";
-            SliderImageBase64 = "";
-            ClickableText = "";
-        }
+    private static void ResetCaptchaState()
+    {
+        BackgroundImageBase64 = "";
+        SliderImageBase64 = "";
+        ClickableText = "";
+    }
 
-        private static string BuildCaptchaParameter(string token, string captchaId)
+    private static string BuildCaptchaParameter(string token, string captchaId)
+    {
+        var payload = new Dictionary<string, string>
         {
-            var payload = new Dictionary<string, string>
-            {
-                { "v_token", token },
-                { "captcha_id", captchaId },
-                { "type", "0" }
-            };
-            return JsonSerializer.Serialize(payload);
-        }
+            { "v_token", token },
+            { "captcha_id", captchaId },
+            { "type", "0" }
+        };
+        return JsonSerializer.Serialize(payload);
     }
 }

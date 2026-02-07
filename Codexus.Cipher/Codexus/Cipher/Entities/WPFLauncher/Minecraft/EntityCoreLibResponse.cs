@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.Minecraft;
 
@@ -86,7 +84,4 @@ public class EntityCoreLibResponse
 	public string Version { get; set; }
 
 	// Token: 0x06000447 RID: 1095 RVA: 0x00009932 File Offset: 0x00007B32
-	public EntityCoreLibResponse()
-	{
-	}
 }

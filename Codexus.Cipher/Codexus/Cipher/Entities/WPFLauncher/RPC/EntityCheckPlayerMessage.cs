@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.RPC;
 
@@ -23,7 +21,4 @@ public class EntityCheckPlayerMessage
 	public string Message { get; set; }
 
 	// Token: 0x06000240 RID: 576 RVA: 0x0000843E File Offset: 0x0000663E
-	public EntityCheckPlayerMessage()
-	{
-	}
 }

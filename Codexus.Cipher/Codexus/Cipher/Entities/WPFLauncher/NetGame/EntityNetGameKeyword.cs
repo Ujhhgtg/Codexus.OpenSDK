@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
@@ -82,7 +80,4 @@ public class EntityNetGameKeyword
 	public int Year { get; set; }
 
 	// Token: 0x06000356 RID: 854 RVA: 0x00008FD0 File Offset: 0x000071D0
-	public EntityNetGameKeyword()
-	{
-	}
 }

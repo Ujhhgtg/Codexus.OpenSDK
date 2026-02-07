@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
 
@@ -36,7 +34,7 @@ public class EntityAuthenticationData
 
 	// Token: 0x17000037 RID: 55
 	// (get) Token: 0x06000179 RID: 377 RVA: 0x00007BB4 File Offset: 0x00005DB4
-	// (set) Token: 0x0600017A RID: 378 RVA: 0x00007BBC File Offset: 0x00005DBC// TODO: [RequiredMember]
+	// (set) Token: 0x0600017A RID: 378 RVA: 0x00007BBC File Offset: 0x00005DBC
 	// TODO: [RequiredMember]
 	[JsonPropertyName("version")]
 	public EntityAuthenticationVersion Version
@@ -55,7 +53,7 @@ public class EntityAuthenticationData
 
 	// Token: 0x17000039 RID: 57
 	// (get) Token: 0x0600017D RID: 381 RVA: 0x00007BD6 File Offset: 0x00005DD6
-	// (set) Token: 0x0600017E RID: 382 RVA: 0x00007BDE File Offset: 0x00005DDE// TODO: [RequiredMember]
+	// (set) Token: 0x0600017E RID: 382 RVA: 0x00007BDE File Offset: 0x00005DDE
 	// TODO: [RequiredMember]
 	[JsonPropertyName("aid")]
 	public string Aid
@@ -152,7 +150,4 @@ public class EntityAuthenticationData
 	public string EntityId { get; set; }
 
 	// Token: 0x06000199 RID: 409 RVA: 0x00007CC4 File Offset: 0x00005EC4
-	public EntityAuthenticationData()
-	{
-	}
 }

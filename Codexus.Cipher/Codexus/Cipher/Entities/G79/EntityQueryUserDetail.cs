@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79;
@@ -16,7 +15,4 @@ public class EntityQueryUserDetail
 	public Version Version { get; set; }
 
 	// Token: 0x0600056A RID: 1386 RVA: 0x0000A6A0 File Offset: 0x000088A0
-	public EntityQueryUserDetail()
-	{
-	}
 }

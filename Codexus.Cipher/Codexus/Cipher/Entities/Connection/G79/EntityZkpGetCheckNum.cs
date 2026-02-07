@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.Connection.G79;
 
@@ -16,7 +14,4 @@ public class EntityZkpGetCheckNum
 	public required string Body { get; set; }
 
 	// Token: 0x060005EF RID: 1519 RVA: 0x0000AB9D File Offset: 0x00008D9D
-	public EntityZkpGetCheckNum()
-	{
-	}
 }

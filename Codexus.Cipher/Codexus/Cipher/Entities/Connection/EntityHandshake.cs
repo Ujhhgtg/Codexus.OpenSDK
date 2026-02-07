@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.Connection;
 
@@ -16,7 +14,4 @@ public class EntityHandshake
 	public required string HandshakeBody { get; set; }
 
 	// Token: 0x060005E3 RID: 1507 RVA: 0x0000AB35 File Offset: 0x00008D35
-	public EntityHandshake()
-	{
-	}
 }

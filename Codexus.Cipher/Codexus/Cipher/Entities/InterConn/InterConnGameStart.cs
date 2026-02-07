@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.InterConn;
 
@@ -35,7 +33,4 @@ public class InterConnGameStart
 	public string[] ItemList { get; set; }
 
 	// Token: 0x0600055A RID: 1370 RVA: 0x0000A5F9 File Offset: 0x000087F9
-	public InterConnGameStart()
-	{
-	}
 }

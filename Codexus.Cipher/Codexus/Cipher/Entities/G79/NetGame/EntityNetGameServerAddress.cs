@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79.NetGame;
 
@@ -23,7 +21,4 @@ public class EntityNetGameServerAddress
 	public int Port { get; set; }
 
 	// Token: 0x060005D7 RID: 1495 RVA: 0x0000AA44 File Offset: 0x00008C44
-	public EntityNetGameServerAddress()
-	{
-	}
 }

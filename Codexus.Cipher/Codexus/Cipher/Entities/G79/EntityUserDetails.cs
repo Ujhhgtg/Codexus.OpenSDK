@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79;
 
@@ -16,7 +14,4 @@ public class EntityUserDetails
 	public string Name { get; set; }
 
 	// Token: 0x06000575 RID: 1397 RVA: 0x0000A6FF File Offset: 0x000088FF
-	public EntityUserDetails()
-	{
-	}
 }

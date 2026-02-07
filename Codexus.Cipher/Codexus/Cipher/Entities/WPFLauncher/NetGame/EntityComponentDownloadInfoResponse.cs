@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
@@ -66,7 +64,4 @@ public class EntityComponentDownloadInfoResponse
 	public List<ulong> SubModList { get; set; }
 
 	// Token: 0x060002FB RID: 763 RVA: 0x00008C2A File Offset: 0x00006E2A
-	public EntityComponentDownloadInfoResponse()
-	{
-	}
 }

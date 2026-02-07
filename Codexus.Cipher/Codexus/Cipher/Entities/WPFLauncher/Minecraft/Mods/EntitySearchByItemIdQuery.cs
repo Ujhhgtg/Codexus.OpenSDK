@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.Minecraft.Mods;
 
@@ -30,7 +28,4 @@ public class EntitySearchByItemIdQuery
 	public int Offset { get; set; }
 
 	// Token: 0x0600045C RID: 1116 RVA: 0x000099E6 File Offset: 0x00007BE6
-	public EntitySearchByItemIdQuery()
-	{
-	}
 }

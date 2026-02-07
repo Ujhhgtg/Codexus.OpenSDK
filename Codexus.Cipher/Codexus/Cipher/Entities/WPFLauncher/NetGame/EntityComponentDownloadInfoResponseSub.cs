@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
@@ -65,7 +63,4 @@ public class EntityComponentDownloadInfoResponseSub
 	public int ResVersion { get; set; }
 
 	// Token: 0x0600030C RID: 780 RVA: 0x00008CBB File Offset: 0x00006EBB
-	public EntityComponentDownloadInfoResponseSub()
-	{
-	}
 }

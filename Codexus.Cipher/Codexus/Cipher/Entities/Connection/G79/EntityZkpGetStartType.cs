@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.Connection.G79;
 
@@ -16,7 +14,4 @@ public class EntityZkpGetStartType
 	public required string Body { get; set; }
 
 	// Token: 0x060005F2 RID: 1522 RVA: 0x0000ABB7 File Offset: 0x00008DB7
-	public EntityZkpGetStartType()
-	{
-	}
 }

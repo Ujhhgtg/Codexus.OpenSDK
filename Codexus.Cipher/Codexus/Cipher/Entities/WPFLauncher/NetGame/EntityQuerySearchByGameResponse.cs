@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame;
@@ -31,7 +29,4 @@ public class EntityQuerySearchByGameResponse
 	public List<ulong> IidList { get; set; }
 
 	// Token: 0x060003AD RID: 941 RVA: 0x00009396 File Offset: 0x00007596
-	public EntityQuerySearchByGameResponse()
-	{
-	}
 }

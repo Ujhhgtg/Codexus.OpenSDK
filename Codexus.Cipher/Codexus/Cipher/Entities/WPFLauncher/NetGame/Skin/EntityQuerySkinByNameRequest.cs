@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame.Skin;
 
@@ -86,7 +84,4 @@ public class EntityQuerySkinByNameRequest
 	public int Year { get; set; }
 
 	// Token: 0x060003EA RID: 1002 RVA: 0x000095CB File Offset: 0x000077CB
-	public EntityQuerySkinByNameRequest()
-	{
-	}
 }

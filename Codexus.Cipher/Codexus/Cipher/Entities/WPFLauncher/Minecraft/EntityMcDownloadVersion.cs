@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.Minecraft;
 
@@ -16,7 +14,4 @@ public class EntityMcDownloadVersion
 	public int McVersion { get; set; }
 
 	// Token: 0x0600044A RID: 1098 RVA: 0x0000994C File Offset: 0x00007B4C
-	public EntityMcDownloadVersion()
-	{
-	}
 }

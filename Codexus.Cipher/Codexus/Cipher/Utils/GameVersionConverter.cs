@@ -21,8 +21,8 @@ public class GameVersionConverter
 		{
 			return 0;
 		}
-		int result;
-		if (int.TryParse(entry.Key, out result))
+
+		if (int.TryParse(entry.Key, out var result))
 		{
 			return result;
 		}

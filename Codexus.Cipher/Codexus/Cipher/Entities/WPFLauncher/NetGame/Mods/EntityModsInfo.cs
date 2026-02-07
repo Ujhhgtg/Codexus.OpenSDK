@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame.Mods;
 
@@ -51,7 +49,4 @@ public class EntityModsInfo
 	public string Version { get; set; } = "";
 
 	// Token: 0x0600042D RID: 1069 RVA: 0x00009833 File Offset: 0x00007A33
-	public EntityModsInfo()
-	{
-	}
 }

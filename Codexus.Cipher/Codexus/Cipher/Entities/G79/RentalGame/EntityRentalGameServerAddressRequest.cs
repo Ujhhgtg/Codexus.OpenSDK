@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79.RentalGame;
 
@@ -23,7 +21,4 @@ public class EntityRentalGameServerAddressRequest
 	public string Password { get; set; }
 
 	// Token: 0x0600058F RID: 1423 RVA: 0x0000A7DE File Offset: 0x000089DE
-	public EntityRentalGameServerAddressRequest()
-	{
-	}
 }

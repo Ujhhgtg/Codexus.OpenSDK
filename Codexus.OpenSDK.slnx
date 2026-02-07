@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Codexus.Cipher/Codexus.Cipher.csproj" />
+  <Project Path="Codexus.Development.SDK/Codexus.Development.SDK.csproj" />
   <Project Path="Codexus.ExampleConsole/Codexus.ExampleConsole.csproj" />
   <Project Path="Codexus.ExampleMod/Codexus.ExampleMod.csproj" />
   <Project Path="Codexus.ModHost/Codexus.ModHost.csproj" />

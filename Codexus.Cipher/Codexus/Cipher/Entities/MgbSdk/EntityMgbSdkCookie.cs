@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.MgbSdk;
 
@@ -121,7 +119,4 @@ public class EntityMgbSdkCookie
 	public string Ip { get; set; } = "127.0.0.1";
 
 	// Token: 0x06000551 RID: 1361 RVA: 0x0000A554 File Offset: 0x00008754
-	public EntityMgbSdkCookie()
-	{
-	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame.Skin;
 
@@ -58,7 +56,4 @@ public class EntityFreeSkinListRequest
 	public int SecondaryTypeId { get; set; }
 
 	// Token: 0x060003D3 RID: 979 RVA: 0x00009507 File Offset: 0x00007707
-	public EntityFreeSkinListRequest()
-	{
-	}
 }

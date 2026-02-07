@@ -50,8 +50,7 @@ public class ParameterBuilder
 	// Token: 0x0600007B RID: 123 RVA: 0x000035F8 File Offset: 0x000017F8
 	public string Get(string parameter)
 	{
-		string text;
-		var flag = !_parameters.TryGetValue(parameter, out text);
+		var flag = !_parameters.TryGetValue(parameter, out var text);
 		string text2;
 		if (flag)
 		{

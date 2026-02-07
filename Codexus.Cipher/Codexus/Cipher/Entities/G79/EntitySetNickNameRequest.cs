@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79;
 
@@ -23,7 +21,4 @@ public class EntitySetNickNameRequest
 	public string EntityId { get; set; }
 
 	// Token: 0x06000572 RID: 1394 RVA: 0x0000A6E5 File Offset: 0x000088E5
-	public EntitySetNickNameRequest()
-	{
-	}
 }

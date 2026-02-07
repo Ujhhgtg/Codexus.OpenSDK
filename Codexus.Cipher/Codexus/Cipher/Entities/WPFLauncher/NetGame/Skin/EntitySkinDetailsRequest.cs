@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame.Skin;
@@ -45,7 +43,4 @@ public class EntitySkinDetailsRequest
 	public bool WithTitleImage { get; set; }
 
 	// Token: 0x06000400 RID: 1024 RVA: 0x000096B3 File Offset: 0x000078B3
-	public EntitySkinDetailsRequest()
-	{
-	}
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher.NetGame.Skin;
 
@@ -44,7 +42,4 @@ public class EntitySkinSettings
 	public int SkinType { get; set; }
 
 	// Token: 0x06000420 RID: 1056 RVA: 0x000097C4 File Offset: 0x000079C4
-	public EntitySkinSettings()
-	{
-	}
 }

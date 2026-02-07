@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
 
@@ -73,7 +71,4 @@ public class EntityX19Cookie
 	public string AimInfo { get; set; } = "{\"aim\":\"127.0.0.1\",\"country\":\"CN\",\"tz\":\"+0800\",\"tzid\":\"\"}";
 
 	// Token: 0x06000238 RID: 568 RVA: 0x000083AC File Offset: 0x000065AC
-	public EntityX19Cookie()
-	{
-	}
 }

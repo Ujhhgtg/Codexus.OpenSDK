@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.G79.NetGame;
@@ -199,7 +197,4 @@ public class EntityNetGameItem
 	public string RunningStatus { get; set; }
 
 	// Token: 0x060005CD RID: 1485 RVA: 0x0000A9EE File Offset: 0x00008BEE
-	public EntityNetGameItem()
-	{
-	}
 }

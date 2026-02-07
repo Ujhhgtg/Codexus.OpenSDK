@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
 
@@ -16,7 +14,4 @@ public class EntityX19CookieRequest
 	public string Json { get; set; }
 
 	// Token: 0x0600023B RID: 571 RVA: 0x00008413 File Offset: 0x00006613
-	public EntityX19CookieRequest()
-	{
-	}
 }

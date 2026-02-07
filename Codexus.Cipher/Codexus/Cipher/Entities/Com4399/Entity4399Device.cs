@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.Com4399;
 
@@ -43,7 +41,4 @@ public class Entity4399Device
 	}
 
 	// Token: 0x060005FB RID: 1531 RVA: 0x0000AC04 File Offset: 0x00008E04
-	public Entity4399Device()
-	{
-	}
 }
