@@ -11,7 +11,6 @@ public static class AesNoPadding
         aes.Mode = CipherMode.ECB;
         aes.Padding = PaddingMode.None;
         var cryptoTransform = encryption ? aes.CreateEncryptor() : aes.CreateDecryptor();
-        var array = cryptoTransform.TransformFinalBlock(data, 0, data.Length);
-        return array;
+        return cryptoTransform.TransformFinalBlock(data, 0, data.Length);
     }
 }

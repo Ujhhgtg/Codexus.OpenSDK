@@ -7,25 +7,19 @@ using Serilog;
 
 namespace Codexus.Game.Launcher.Utils;
 
-public static class PathUtil
+public static partial class PathUtil
 {
     public static void OpenDirectory(string path)
     {
         try
         {
-            var flag = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            if (flag)
-            {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Process.Start("explorer.exe", path);
-            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                Process.Start("open", path);
             else
-            {
-                var flag2 = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-                if (flag2)
-                    Process.Start("open", path);
-                else
-                    Process.Start("xdg-open", path);
-            }
+                Process.Start("xdg-open", path);
+            
         }
         catch (Exception ex)
         {
@@ -35,16 +29,14 @@ public static class PathUtil
 
     public static bool ContainsChinese(string path)
     {
-        return Regex.IsMatch(path, @"[\u4e00-\u9fff]");
+        return CjkCharRegex().IsMatch(path);
     }
 
     public static readonly string CachePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".game_cache");
     public static readonly string ResourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources");
     public static readonly string UpdaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "updater");
-
     public static readonly string ScriptPath = Path.Combine(UpdaterPath,
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "update.bat" : "update.sh");
-
     public static readonly string CustomModsPath = Path.Combine(ResourcePath, "mods");
     public static readonly string WebSitePath = Path.Combine(ResourcePath, "static");
     public static readonly string JavaPath = Path.Combine(CachePath, "Java");
@@ -54,4 +46,7 @@ public static class PathUtil
     public static readonly string GameBasePath = Path.Combine(GamePath, "Base");
     public static readonly string GameModsPath = Path.Combine(CachePath, "GameMods");
     public static readonly string CppGamePath = Path.Combine(CachePath, "CppGame");
+
+    [GeneratedRegex(@"[\u4e00-\u9fff]")]
+    private static partial Regex CjkCharRegex();
 }

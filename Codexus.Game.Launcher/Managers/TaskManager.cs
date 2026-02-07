@@ -4,15 +4,11 @@ namespace Codexus.Game.Launcher.Managers;
 
 public class TaskManager
 {
-    public static TaskManager Instance
-    {
-        get
-        {
-            TaskManager? taskManager;
-            if ((taskManager = _instance) == null) taskManager = _instance = new TaskManager();
-            return taskManager;
-        }
-    }
+    private static TaskManager? _instance;
+
+    private TaskFactory? _factory;
+
+    public static TaskManager Instance => _instance ??= new TaskManager();
 
     private TaskManager()
     {
@@ -20,11 +16,6 @@ public class TaskManager
 
     public TaskFactory GetFactory()
     {
-        TaskFactory? taskFactory;
-        if ((taskFactory = _factory) == null) taskFactory = _factory = new TaskFactory();
-        return taskFactory;
+        return _factory ??= new TaskFactory();
     }
-
-    private static TaskManager? _instance;
-    private TaskFactory? _factory;
 }

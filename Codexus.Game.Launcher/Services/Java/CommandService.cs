@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Codexus.Cipher.Entities.WPFLauncher.Minecraft;
@@ -73,164 +74,110 @@ public class CommandService
     }
 
     private void BuildJarLists(Dictionary<string, JsonElement> cfg, string version)
-    {
-        _jarList.Clear();
-        var flag = cfg.TryGetValue("libraries", out var jsonElement) && jsonElement.ValueKind == JsonValueKind.Array;
-        if (flag)
-            foreach (var jsonElement2 in jsonElement.EnumerateArray())
-            {
-                var flag2 = jsonElement2.TryGetProperty("name", out var jsonElement3);
-                if (flag2)
-                {
-                    var @string = jsonElement3.GetString();
-                    var array = @string?.Split(':');
-                    var flag3 = array is { Length: >= 3 } && !array[1].Contains("platform");
-                    if (flag3)
-                    {
-                        var text = array[0].Replace('.', '\\');
-                        var text2 = array[1] + "-" + array[2] + ".jar";
-                        _jarList.Add(_relLibPath + Path.Combine(text, array[1], array[2], text2));
-                    }
-                }
-            }
+	{
+		_jarList.Clear();
+		if (cfg.TryGetValue("libraries", out var value) && value.ValueKind == JsonValueKind.Array)
+		{
+			foreach (var item in value.EnumerateArray())
+			{
+				if (item.TryGetProperty("name", out var value2))
+				{
+					var array = value2.GetString()?.Split(':');
+					if (array != null && array.Length >= 3 && !array[1].Contains("platform"))
+					{
+						var path = array[0].Replace('.', '\\');
+						var path2 = array[1] + "-" + array[2] + ".jar";
+						_jarList.Add(_relLibPath + Path.Combine(path, array[1], array[2], path2));
+					}
+				}
+			}
+		}
+		_jarList.Add(_relVerPath + version + ".jar");
+	}
 
-        _jarList.Add(_relVerPath + version + ".jar");
-    }
+	private void BuildCommand(Dictionary<string, JsonElement> cfg, string version, int mem, int socketPort, List<string> jars)
+	{
+		var stringBuilder = new StringBuilder();
+		stringBuilder.Append(" -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+		stringBuilder.Append(" -Xmx").Append(mem).Append("M");
+		stringBuilder.Append(" -Xmn128M -XX:PermSize=64M -XX:MaxPermSize=128M");
+		stringBuilder.Append(" -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:-UseAdaptiveSizePolicy");
+		AddNativePath(stringBuilder);
+		stringBuilder.Append(" -cp \"");
+		foreach (var jar in jars)
+		{
+			stringBuilder.Append(Path.Combine(PathUtil.GameBasePath, ".minecraft", jar)).Append(";");
+		}
+		stringBuilder.Append("\" ");
+		stringBuilder.Append(cfg["mainClass"].GetString());
+		stringBuilder.Append(' ');
+		var text = cfg.GetValueOrDefault("minecraftArguments").GetString() ?? string.Empty;
+		text = text.Replace("${version_name}", version).Replace("${assets_root}", Path.Combine(PathUtil.GameBasePath, ".minecraft", "assets")).Replace("${assets_index_name}", version)
+			.Replace("${auth_uuid}", _uuid)
+			.Replace("${auth_access_token}", RandomUtil.GetRandomString(32, "ABCDEF1234567890"))
+			.Replace("${auth_player_name}", _roleName)
+			.Replace("${user_properties}", GetUserProperties(version))
+			.Replace("--userType ${user_type}", string.Empty)
+			.Replace("--gameDir ${game_directory}", "--gameDir " + _workPath)
+			.Replace("--versionType ${version_type}", string.Empty);
+		stringBuilder.Append(text).Append(" --server ").Append(_serverIp)
+			.Append(" --port ")
+			.Append(_serverPort)
+			.Append(" --userPropertiesEx ")
+			.Append(GetUserPropertiesEx());
+		stringBuilder.Insert(0, $" -DlauncherControlPort={socketPort} -DlauncherGameId={_gameId} -DuserId={_userId} -DToken={_authToken} -DServer=RELEASE ");
+		_cmd = stringBuilder.ToString();
+	}
 
-    private void BuildCommand(
-        Dictionary<string, JsonElement> cfg,
-        string version,
-        int mem,
-        int socketPort,
-        List<string> jars)
-    {
-        var sb = new StringBuilder();
+	private void BuildCommandEx(Dictionary<string, JsonElement> cfg, string version, int mem, int socketPort)
+	{
+		var text = cfg.GetValueOrDefault("parameter_arguments").GetString();
+		var text2 = cfg.GetValueOrDefault("jvm_arguments").GetString();
+		if (text != null && text2 != null)
+		{
+			text2 = text2.Replace("-Xmx2G", string.Empty).Replace("-DlibraryDirectory=libraries", "-DlibraryDirectory=" + Path.Combine(PathUtil.GameBasePath, ".minecraft", "libraries"));
+			text = text.Replace("--assetsDir assets", "--assetsDir " + Path.Combine(PathUtil.GameBasePath, ".minecraft", "assets")).Replace("--gameDir .", "--gameDir " + _workPath);
+			text2 = ReplaceLib(text2, "-cp");
+			text2 = ReplaceLib(text2, "-p");
+			text = text.Replace("${auth_player_name}", _roleName).Replace("${auth_uuid}", _uuid).Replace("${auth_access_token}", (_gameVersion >= EnumGameVersion.V_1_18) ? "0" : RandomUtil.GetRandomString(32, "ABCDEF0123456789"));
+			var stringBuilder = new StringBuilder().Append(" -Xmx").Append(mem).Append("M -Xmn128M ")
+				.Append(text2)
+				.Append(' ')
+				.Append(text);
+			stringBuilder.Append(" --userProperties ").Append(GetUserProperties(version));
+			stringBuilder.Append(" --userPropertiesEx ").Append(GetUserPropertiesEx());
+			stringBuilder.Append(" --server ").Append(_serverIp);
+			stringBuilder.Append(" --port ").Append(_serverPort);
+			stringBuilder.Insert(0, $" -DlauncherControlPort={socketPort} -DlauncherGameId={_gameId} -DuserId={_userId} -DToken={_authToken} -DServer=RELEASE ");
+			AddNativePath(stringBuilder);
+			_cmd = stringBuilder.ToString();
+		}
 
-        AppendJvmSystemProps(sb, socketPort);
-        AddNativePath(sb);
+		return;
 
-        sb.Append(" -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
-            .Append(" -Xmx").Append(mem).Append("M")
-            .Append(" -Xmn128M -XX:PermSize=64M -XX:MaxPermSize=128M")
-            .Append(" -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:-UseAdaptiveSizePolicy");
+		static string ReplaceLib(string a, string opt)
+		{
+			var array = a.Split(' ');
+			for (var i = 0; i < array.Length - 1; i++)
+			{
+				if (array[i] == opt)
+				{
+					var source = array[i + 1].Split(';');
+					var newValue = string.Join(";", source.Select((string l) => Path.Combine(PathUtil.GameBasePath, ".minecraft", l)));
+					a = a.Replace(array[i + 1], newValue);
+					break;
+				}
+			}
+			return a;
+		}
+	}
 
-        sb.Append(" -cp \"");
-        foreach (var jar in jars) sb.Append(Path.Combine(PathUtil.GameBasePath, ".minecraft", jar)).Append(';');
-        sb.Append("\" ");
-
-        sb.Append(cfg["mainClass"].GetString()).Append(' ');
-
-        sb.Append(BuildMinecraftArgs(cfg, version));
-
-        sb.Append(" --server ").Append(_serverIp)
-            .Append(" --port ").Append(_serverPort)
-            .Append(" --userPropertiesEx ")
-            .Append(GetUserPropertiesEx());
-
-        _cmd = sb.ToString();
-    }
-
-    private string BuildMinecraftArgs(
-        Dictionary<string, JsonElement> cfg,
-        string version)
-    {
-        var args = cfg.GetValueOrDefault("minecraftArguments").GetString() ?? string.Empty;
-
-        return args
-            .Replace("${version_name}", version)
-            .Replace(
-                "${assets_root}",
-                Path.Combine(PathUtil.GameBasePath, ".minecraft", "assets")
-            )
-            .Replace("${assets_index_name}", version)
-            .Replace("${auth_uuid}", _uuid)
-            .Replace(
-                "${auth_access_token}",
-                RandomUtil.GetRandomString(32, "ABCDEF1234567890")
-            )
-            .Replace("${auth_player_name}", _roleName)
-            .Replace("${user_properties}", GetUserProperties(version))
-            .Replace("--userType ${user_type}", string.Empty)
-            .Replace("--gameDir ${game_directory}", $"--gameDir {_workPath}")
-            .Replace("--versionType ${version_type}", string.Empty);
-    }
-
-    private void BuildCommandEx(
-        Dictionary<string, JsonElement> cfg,
-        string version,
-        int mem,
-        int socketPort)
-    {
-        var args = cfg.GetValueOrDefault("parameter_arguments").GetString();
-        var jvm = cfg.GetValueOrDefault("jvm_arguments").GetString();
-
-        if (args == null || jvm == null) return;
-
-        jvm = jvm
-            .Replace("-Xmx2G", string.Empty)
-            .Replace(
-                "-DlibraryDirectory=libraries",
-                $"-DlibraryDirectory={Path.Combine(PathUtil.GameBasePath, ".minecraft", "libraries")}"
-            );
-
-        jvm = RewriteClasspathArgument(jvm, "-cp");
-        jvm = RewriteClasspathArgument(jvm, "-p");
-
-        args = args
-            .Replace("--assetsDir assets", $"--assetsDir {Path.Combine(PathUtil.GameBasePath, ".minecraft", "assets")}")
-            .Replace("--gameDir .", $"--gameDir {_workPath}")
-            .Replace("${auth_player_name}", _roleName)
-            .Replace("${auth_uuid}", _uuid)
-            .Replace(
-                "${auth_access_token}",
-                _gameVersion >= EnumGameVersion.V_1_18
-                    ? "0"
-                    : RandomUtil.GetRandomString(32, "ABCDEF0123456789")
-            );
-
-        var sb = new StringBuilder();
-
-        AppendJvmSystemProps(sb, socketPort);
-        AddNativePath(sb);
-
-        sb.Append(" -Xmx").Append(mem).Append("M -Xmn128M ")
-            .Append(jvm)
-            .Append(' ')
-            .Append(args)
-            .Append(" --userProperties ").Append(GetUserProperties(version))
-            .Append(" --userPropertiesEx ").Append(GetUserPropertiesEx())
-            .Append(" --server ").Append(_serverIp)
-            .Append(" --port ").Append(_serverPort);
-
-        _cmd = sb.ToString();
-    }
-
-    private void AddNativePath(StringBuilder sb)
-    {
-        var natives = Path.Combine(
-            PathUtil.GameBasePath,
-            ".minecraft",
-            "versions",
-            _version,
-            "natives");
-
-        var runtime = Path.Combine(natives, "runtime");
-
-        sb.Append(" -Djava.library.path=\"")
-            .Append(natives.Replace("\\", @"\\"))
-            .Append("\" -Druntime_path=\"")
-            .Append(runtime.Replace("\\", @"\\"))
-            .Append("\" ");
-    }
-
-    private void AppendJvmSystemProps(StringBuilder sb, int socketPort)
-    {
-        sb.Append(" -DlauncherControlPort=").Append(socketPort)
-            .Append(" -DlauncherGameId=").Append(_gameId)
-            .Append(" -DuserId=").Append(_userId)
-            .Append(" -DToken=").Append(_authToken)
-            .Append(" -DServer=RELEASE ");
-    }
+	private void AddNativePath(StringBuilder sb)
+	{
+		var text = Path.Combine(PathUtil.GameBasePath, ".minecraft", "versions", _version, "natives");
+		var text2 = Path.Combine(text, "runtime");
+		sb.Insert(0, $" -Djava.library.path=\"{text.Replace("\\", "\\\\")}\" -Druntime_path=\"{text2.Replace("\\", "\\\\")}\" ");
+	}
 
     private string GetUserPropertiesEx(EnumGType t = EnumGType.NetGame)
     {
@@ -258,28 +205,6 @@ public class CommandService
             _protocolVersion
         });
         return "\"{" + text2 + "}\"";
-    }
-
-    private static string RewriteClasspathArgument(string input, string opt)
-    {
-        var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        for (var i = 0; i < parts.Length - 1; i++)
-        {
-            if (parts[i] != opt) continue;
-
-            var entries = parts[i + 1].Split(';', StringSplitOptions.RemoveEmptyEntries);
-
-            for (var j = 0; j < entries.Length; j++)
-                entries[j] = Path.Combine(
-                    PathUtil.GameBasePath,
-                    ".minecraft",
-                    entries[j]);
-
-            parts[i + 1] = string.Join(';', entries);
-            break;
-        }
-
-        return string.Join(' ', parts);
     }
 
     private readonly List<string> _jarList = [];

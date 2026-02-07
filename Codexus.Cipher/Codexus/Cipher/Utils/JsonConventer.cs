@@ -9,53 +9,44 @@ public static class JsonConventer
 {
     public class SingleOrArrayConverter<T> : JsonConverter<List<T>>
     {
-        public override List<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override List<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions? options)
         {
             var list = new List<T>();
-            var flag = reader.TokenType != JsonTokenType.StartArray;
-            if (flag)
+            if (reader.TokenType != JsonTokenType.StartArray)
             {
-                var t = JsonSerializer.Deserialize<T>(ref reader, options);
-                list.Add(t);
+                list.Add(JsonSerializer.Deserialize<T>(ref reader, options)!);
+                return list;
             }
-            else
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
             {
-                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
-                {
-                    var t2 = JsonSerializer.Deserialize<T>(ref reader, options);
-                    list.Add(t2);
-                }
+                list.Add(JsonSerializer.Deserialize<T>(ref reader, options)!);
             }
-
             return list;
         }
 
         public override void Write(Utf8JsonWriter writer, List<T> value, JsonSerializerOptions options)
         {
             writer.WriteStartArray();
-            foreach (var t in value) JsonSerializer.Serialize(writer, t, options);
+            foreach (var item in value)
+            {
+                JsonSerializer.Serialize(writer, item, options);
+            }
             writer.WriteEndArray();
         }
     }
 
     public class StringFromNumberOrStringConverter : JsonConverter<string>
     {
-        public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var tokenType = reader.TokenType;
-            string text;
-            if (tokenType != JsonTokenType.String)
+            var result = tokenType switch
             {
-                if (tokenType != JsonTokenType.Number)
-                    throw new JsonException("Unsupported token type for string conversion.");
-                text = reader.GetInt64().ToString();
-            }
-            else
-            {
-                text = reader.GetString();
-            }
-
-            return text;
+                JsonTokenType.Number => reader.GetInt64().ToString(), 
+                JsonTokenType.String => reader.GetString(), 
+                _ => throw new JsonException("Unsupported token type for string conversion."), 
+            };
+            return result;
         }
 
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)

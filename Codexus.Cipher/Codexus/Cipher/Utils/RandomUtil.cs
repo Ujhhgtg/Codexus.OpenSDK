@@ -3,33 +3,26 @@ using System.Text;
 
 namespace Codexus.Cipher.Utils;
 
-public class RandomUtil
+public static class RandomUtil
 {
-    public static string GetRandomString(int length, string chars = null)
+    public static string GetRandomString(int length, string? chars = null)
     {
-        var flag = length <= 0;
-        string text;
-        if (flag)
+        if (length <= 0)
         {
-            text = string.Empty;
+            return string.Empty;
         }
-        else
+        if (string.IsNullOrEmpty(chars))
         {
-            var flag2 = string.IsNullOrEmpty(chars);
-            if (flag2) chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghizklmnopqrstuvwxyz0123456789";
-            var stringBuilder = new StringBuilder(length);
-            var array = new byte[length];
-            RandomNumberGenerator.Fill(array);
-            for (var i = 0; i < length; i++)
-            {
-                var num = array[i] % chars.Length;
-                stringBuilder.Append(chars[num]);
-            }
-
-            text = stringBuilder.ToString();
+            chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghizklmnopqrstuvwxyz0123456789";
         }
-
-        return text;
+        var stringBuilder = new StringBuilder(length);
+        var array = new byte[length];
+        RandomNumberGenerator.Fill(array);
+        for (var i = 0; i < length; i++)
+        {
+            stringBuilder.Append(chars[array[i] % chars.Length]);
+        }
+        return stringBuilder.ToString();
     }
 
     public static string GenerateSessionId()

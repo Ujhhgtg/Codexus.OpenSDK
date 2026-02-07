@@ -6,20 +6,14 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 
 namespace Codexus.Development.SDK.Analysis;
 
-public class NettyCompressionEncoder : MessageToByteEncoder<IByteBuffer>
+public class NettyCompressionEncoder(int threshold) : MessageToByteEncoder<IByteBuffer>
 {
-    public int Threshold { get; set; }
-
-    public NettyCompressionEncoder(int threshold)
-    {
-        Threshold = threshold;
-    }
+    public int Threshold { get; set; } = threshold;
 
     protected override void Encode(IChannelHandlerContext context, IByteBuffer message, IByteBuffer output)
     {
         var readableBytes = message.ReadableBytes;
-        var flag = readableBytes < Threshold;
-        if (flag)
+        if (readableBytes < Threshold)
         {
             output.WriteVarInt(0);
             output.WriteBytes(message);

@@ -13,24 +13,17 @@ public class Lock
 
     private readonly object _sync = new();
 
-    private sealed class Scope : IDisposable
+    private sealed class Scope(Lock owner) : IDisposable
     {
-        public Scope(Lock owner)
-        {
-            _owner = owner;
-        }
-
         public void Dispose()
         {
-            var disposed = _disposed;
-            if (!disposed)
+            if (!_disposed)
             {
                 _disposed = true;
-                Monitor.Exit(_owner._sync);
+                Monitor.Exit(owner._sync);
             }
         }
 
-        private readonly Lock _owner;
         private bool _disposed;
     }
 }

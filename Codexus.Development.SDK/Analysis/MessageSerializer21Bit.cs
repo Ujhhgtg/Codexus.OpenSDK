@@ -11,8 +11,7 @@ public class MessageSerializer21Bit : MessageToByteEncoder<IByteBuffer>
     {
         var readableBytes = message.ReadableBytes;
         var varIntSize = readableBytes.GetVarIntSize();
-        var flag = varIntSize <= 3;
-        if (flag)
+        if (varIntSize <= 3)
         {
             output.EnsureWritable(varIntSize + readableBytes);
             output.WriteVarInt(readableBytes);

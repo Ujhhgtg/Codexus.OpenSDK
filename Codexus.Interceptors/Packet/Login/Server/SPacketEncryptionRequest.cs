@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Event;

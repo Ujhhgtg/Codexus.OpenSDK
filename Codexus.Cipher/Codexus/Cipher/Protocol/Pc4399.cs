@@ -35,31 +35,26 @@ public class Pc4399 : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public async Task<string> LoginWithPasswordAsync(string username, string password, string captchaIdentifier,
-        string captcha)
+    public async Task<string> LoginWithPasswordAsync(string username, string password, string? captchaIdentifier,
+        string? captcha)
     {
-        var num = captchaIdentifier == null && captcha == null;
         var parameter = BuildParametersLogin().Append("username", username).Append("password", password);
-        var flag2 = num;
+        var flag2 = captchaIdentifier == null && captcha == null;
         if (flag2)
         {
             var httpResponseMessage = await _login.PostAsync("/ptlogin/loginFrame.do?v=1", parameter.FormUrlEncode(),
                 "application/x-www-form-urlencoded");
             var text = await httpResponseMessage.Content.ReadAsStringAsync();
-            httpResponseMessage = null;
             flag2 = text.Contains("账号异常，请输入验证码");
-            text = null;
         }
 
-        var flag3 = flag2;
-        if (flag3) throw new CaptchaException("^Captcha required^");
+        if (flag2) throw new CaptchaException("^Captcha required^");
         if (captchaIdentifier != null && captcha != null)
             parameter.Append("sessionId", captchaIdentifier).Append("inputCaptcha", captcha);
         var httpResponseMessage2 = await _login.PostAsync("/ptlogin/login.do?v=1", parameter.FormUrlEncode(),
             "application/x-www-form-urlencoded");
         if (!httpResponseMessage2.IsSuccessStatusCode)
         {
-            httpResponseMessage2 = null;
             throw new Exception("Login to Pc499 failed");
         }
 
@@ -68,54 +63,40 @@ public class Pc4399 : IDisposable
 
     private async Task<string> GenerateCookie()
     {
-        var value = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var text2 = "/ptlogin/checkKidLoginUserCookie.do?";
-        var parameterBuilder2 = new ParameterBuilder().Append("appId", "kid_wdsj")
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var @params = new ParameterBuilder()
+            .Append("appId", "kid_wdsj")
             .Append("gameUrl", "https://cdn.h5wan.4399sj.com/microterminal-h5-frame?game_id=500352")
             .Append("isCrossDomain", "1")
             .Append("nick", "null")
             .Append("onLineStart", "false")
             .Append("ptLogin", "true")
             .Append("rand_time", "$randTime");
-        var text3 = "retUrl";
-        var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(415, 1);
-        defaultInterpolatedStringHandler.AppendLiteral(
-            "https://ptlogin.4399.com/resource/ucenter.html?action=login&appId=kid_wdsj&loginLevel=8&regLevel=8&bizId=2201001794&externalLogin=qq&qrLogin=true&layout=vertical&level=101&css=https://microgame.5054399.net/v2/resource/cssSdk/default/login.css&v=2018_11_26_16&postLoginHandler=redirect&checkLoginUserCookie=true&redirectUrl=http%3A%2F%2Fcdn.h5wan.4399sj.com%2Fmicroterminal-h5-frame%3Fgame_id%3D500352%26rand_time%3D");
-        defaultInterpolatedStringHandler.AppendFormatted(value);
-        var httpResponseMessage2 = await _login.GetAsync(text2 + parameterBuilder2
-            .Append(text3, defaultInterpolatedStringHandler.ToStringAndClear()).Append("show", "1").FormUrlEncode());
-        var httpResponseMessage = httpResponseMessage2;
-        httpResponseMessage2 = null;
-        if (httpResponseMessage.RequestMessage == null || httpResponseMessage.RequestMessage.RequestUri == null)
+        var httpResponseMessage2 = await _login.GetAsync("/ptlogin/checkKidLoginUserCookie.do?" + @params
+            .Append("retUrl",
+                $"https://ptlogin.4399.com/resource/ucenter.html?action=login&appId=kid_wdsj&loginLevel=8&regLevel=8&bizId=2201001794&externalLogin=qq&qrLogin=true&layout=vertical&level=101&css=https://microgame.5054399.net/v2/resource/cssSdk/default/login.css&v=2018_11_26_16&postLoginHandler=redirect&checkLoginUserCookie=true&redirectUrl=http%3A%2F%2Fcdn.h5wan.4399sj.com%2Fmicroterminal-h5-frame%3Fgame_id%3D500352%26rand_time%3D{timestamp}"
+                )
+            .Append("show", "1").FormUrlEncode());
+        if (httpResponseMessage2.RequestMessage == null || httpResponseMessage2.RequestMessage.RequestUri == null)
             throw new Exception("Login to Pc499 failed");
         string text;
-        var num = (text = httpResponseMessage.RequestMessage.RequestUri.ToString()).LastIndexOf('?') + 1;
-        var parameter = text.Substring(num, text.Length - num);
+        var num = (text = httpResponseMessage2.RequestMessage.RequestUri.ToString()).LastIndexOf('?') + 1;
+        var parameter = text[num..];
         var parameterBuilder3 = await GetUniAuth(parameter);
-        var parameterBuilder = parameterBuilder3;
-        parameterBuilder3 = null;
-        return _mgbSdk.GenerateSAuth(MPay.Unique, parameterBuilder.Get("username"), parameterBuilder.Get("uid"),
-            parameterBuilder.Get("token"), parameterBuilder.Get("time"), "4399pc");
+        return _mgbSdk.GenerateSAuth(MPay.Unique, parameterBuilder3.Get("username"), parameterBuilder3.Get("uid"),
+            parameterBuilder3.Get("token"), parameterBuilder3.Get("time"), "4399pc");
     }
 
     private async Task<ParameterBuilder> GetUniAuth(string parameter)
     {
-        var value = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(11, 2);
-        defaultInterpolatedStringHandler.AppendLiteral("jQuery1830");
-        defaultInterpolatedStringHandler.AppendFormatted(StringGenerator.GenerateRandomString(16, true, false, false));
-        defaultInterpolatedStringHandler.AppendLiteral("_");
-        defaultInterpolatedStringHandler.AppendFormatted(value);
-        var callback = defaultInterpolatedStringHandler.ToStringAndClear();
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var callback = $"jQuery1830{StringGenerator.GenerateRandomString(16, true, false, false)}_{timestamp}";
         var httpResponseMessage = await _service.GetAsync("/v2/service/sdk/info?" + new ParameterBuilder()
             .Append("callback", callback).Append("queryStr", parameter).FormUrlEncode());
-        var obj = httpResponseMessage;
-        if (!obj.IsSuccessStatusCode) throw new Exception("Get Uni-auth failed");
-        var text2 = await obj.Content.ReadAsStringAsync();
-        string text;
-        var num = (text = text2).IndexOf(callback + "(", StringComparison.Ordinal) + callback.Length + 1;
+        if (!httpResponseMessage.IsSuccessStatusCode) throw new Exception("Get Uni-auth failed");
+        var num = (await httpResponseMessage.Content.ReadAsStringAsync()).IndexOf(callback + "(", StringComparison.Ordinal) + callback.Length + 1;
         var entity4399Response =
-            JsonSerializer.Deserialize<Entity4399Response>(text.Substring(num, text.Length - 1 - num));
+            JsonSerializer.Deserialize<Entity4399Response>((await httpResponseMessage.Content.ReadAsStringAsync()).Substring(num, (await httpResponseMessage.Content.ReadAsStringAsync()).Length - 1 - num));
         return entity4399Response == null
             ? throw new Exception("Get Uni-auth failed")
             : new ParameterBuilder(entity4399Response.Data.SdkLoginData);
@@ -146,8 +127,6 @@ public class Pc4399 : IDisposable
             .Append("welcomeTip", "欢迎回到4399");
     }
 
-    private const string AppId = "kid_wdsj";
-    private const string GameUrl = "https://cdn.h5wan.4399sj.com/microterminal-h5-frame?game_id=500352";
     private readonly CookieContainer _cookieContainer = new();
     private readonly HttpWrapper _login;
     private readonly MgbSdk _mgbSdk = new("x19");

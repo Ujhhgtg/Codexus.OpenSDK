@@ -12,85 +12,94 @@ public static class YggdrasilExtensions
         return SHA256.HashData(input);
     }
 
-    public static byte[] ToByteArray(this int value, bool littleEndian = true)
+    extension(int value)
     {
-        var bytes = BitConverter.GetBytes(value);
-        var flag = BitConverter.IsLittleEndian != littleEndian;
-        if (flag) Array.Reverse(bytes);
-        return bytes;
+        public byte[] ToByteArray(bool littleEndian = true)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            var flag = BitConverter.IsLittleEndian != littleEndian;
+            if (flag) Array.Reverse(bytes);
+            return bytes;
+        }
+
+        public byte[] ToShortByteArray(bool littleEndian = true)
+        {
+            var bytes = BitConverter.GetBytes((short)value);
+            var flag = BitConverter.IsLittleEndian != littleEndian;
+            if (flag) Array.Reverse(bytes);
+            return bytes;
+        }
     }
 
-    public static byte[] ToShortByteArray(this int value, bool littleEndian = true)
+    extension(long value)
     {
-        var bytes = BitConverter.GetBytes((short)value);
-        var flag = BitConverter.IsLittleEndian != littleEndian;
-        if (flag) Array.Reverse(bytes);
-        return bytes;
+        public byte[] ToByteArray(bool littleEndian = true)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            var flag = BitConverter.IsLittleEndian != littleEndian;
+            if (flag) Array.Reverse(bytes);
+            return bytes;
+        }
+
+        public byte[] ToShortByteArray(bool littleEndian = true)
+        {
+            var bytes = BitConverter.GetBytes((short)value);
+            var flag = BitConverter.IsLittleEndian != littleEndian;
+            if (flag) Array.Reverse(bytes);
+            return bytes;
+        }
     }
 
-    public static byte[] ToByteArray(this long value, bool littleEndian = true)
+    extension(MemoryStream stream)
     {
-        var bytes = BitConverter.GetBytes(value);
-        var flag = BitConverter.IsLittleEndian != littleEndian;
-        if (flag) Array.Reverse(bytes);
-        return bytes;
-    }
+        public void WriteInt(int value, bool littleEndian = true)
+        {
+            var array = value.ToByteArray(littleEndian);
+            stream.Write(array);
+        }
 
-    public static byte[] ToShortByteArray(this long value, bool littleEndian = true)
-    {
-        var bytes = BitConverter.GetBytes((short)value);
-        var flag = BitConverter.IsLittleEndian != littleEndian;
-        if (flag) Array.Reverse(bytes);
-        return bytes;
-    }
+        public void WriteShort(int value, bool littleEndian = true)
+        {
+            var array = value.ToShortByteArray(littleEndian);
+            stream.Write(array);
+        }
 
-    public static void WriteInt(this MemoryStream stream, int value, bool littleEndian = true)
-    {
-        var array = value.ToByteArray(littleEndian);
-        stream.Write(array);
-    }
+        public void WriteLong(long value, bool littleEndian = true)
+        {
+            var array = value.ToByteArray(littleEndian);
+            stream.Write(array);
+        }
 
-    public static void WriteShort(this MemoryStream stream, int value, bool littleEndian = true)
-    {
-        var array = value.ToShortByteArray(littleEndian);
-        stream.Write(array);
-    }
+        public void WriteBytes(byte[] data)
+        {
+            stream.Write(data);
+        }
 
-    public static void WriteLong(this MemoryStream stream, long value, bool littleEndian = true)
-    {
-        var array = value.ToByteArray(littleEndian);
-        stream.Write(array);
-    }
+        public void WriteString(string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            stream.WriteByte((byte)bytes.Length);
+            stream.Write(bytes);
+        }
 
-    public static void WriteBytes(this MemoryStream stream, byte[] data)
-    {
-        stream.Write(data);
-    }
+        public void WriteByteLengthString(string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            stream.WriteByte((byte)bytes.Length);
+            stream.Write(bytes);
+        }
 
-    public static void WriteString(this MemoryStream stream, string value)
-    {
-        var bytes = Encoding.UTF8.GetBytes(value);
-        stream.WriteByte((byte)bytes.Length);
-        stream.Write(bytes);
-    }
+        public void WriteShortString(string value, bool littleEndian = true)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            stream.WriteShort(bytes.Length, littleEndian);
+            stream.Write(bytes);
+        }
 
-    public static void WriteByteLengthString(this MemoryStream stream, string value)
-    {
-        var bytes = Encoding.UTF8.GetBytes(value);
-        stream.WriteByte((byte)bytes.Length);
-        stream.Write(bytes);
-    }
-
-    public static void WriteShortString(this MemoryStream stream, string value, bool littleEndian = true)
-    {
-        var bytes = Encoding.UTF8.GetBytes(value);
-        stream.WriteShort(bytes.Length, littleEndian);
-        stream.Write(bytes);
-    }
-
-    public static void WriteShortBytes(this MemoryStream stream, byte[] data, bool littleEndian = true)
-    {
-        stream.WriteShort(data.Length, littleEndian);
-        stream.Write(data);
+        public void WriteShortBytes(byte[] data, bool littleEndian = true)
+        {
+            stream.WriteShort(data.Length, littleEndian);
+            stream.Write(data);
+        }
     }
 }

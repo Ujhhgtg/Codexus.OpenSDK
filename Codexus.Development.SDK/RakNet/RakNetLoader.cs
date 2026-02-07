@@ -22,14 +22,14 @@ public static class RakNetLoader
             }
         }
 
-        var flag2 = _loader == null;
-        if (flag2) throw new Exception("Could not initialize RakNet");
+        if (_loader == null)
+            throw new Exception("Could not initialize RakNet");
     }
 
     public static IRakNetCreate ConstructLoader()
     {
         if (_loader == null) throw new Exception("You must call FindLoader() before ConstructLoader()");
-        return (IRakNetCreate)Activator.CreateInstance(_loader);
+        return (IRakNetCreate)Activator.CreateInstance(_loader)!;
     }
 
     private static Type? _loader;

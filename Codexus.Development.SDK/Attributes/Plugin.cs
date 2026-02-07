@@ -9,7 +9,7 @@ public class Plugin(
     string description,
     string author,
     string version,
-    string[] dependencies = null)
+    string[]? dependencies = null)
     : Attribute
 {
     public string Id { get; } = id;
@@ -18,5 +18,5 @@ public class Plugin(
     public string Description { get; } = description;
     public string Version { get; } = version;
 
-    public string[] Dependencies { get; } = dependencies;
+    public string[]? Dependencies { get; } = dependencies;
 }

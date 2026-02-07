@@ -11,7 +11,7 @@ public static class JsonElementExtensions
         public object? GetObject()
         {
             var valueKind = element.ValueKind;
-            var obj = valueKind switch
+            return valueKind switch
             {
                 JsonValueKind.Object => element.DeserializeToDictionary(),
                 JsonValueKind.Array => element.DeserializeToList(),
@@ -22,7 +22,6 @@ public static class JsonElementExtensions
                 JsonValueKind.Null => null,
                 _ => element
             };
-            return obj;
         }
 
         private object GetNumber()
@@ -66,9 +65,9 @@ public static class JsonElementExtensions
             return element.EnumerateArray().Select(jsonElement => jsonElement.GetObject()).ToList();
         }
 
-        private Dictionary<string, object> DeserializeToDictionary()
+        private Dictionary<string, object?> DeserializeToDictionary()
         {
-            var dictionary = new Dictionary<string, object>();
+            var dictionary = new Dictionary<string, object?>();
             foreach (var jsonProperty in element.EnumerateObject())
                 dictionary[jsonProperty.Name] = jsonProperty.Value.GetObject();
             return dictionary;

@@ -33,8 +33,8 @@ public static class RepairService
         }
 
         var cachePath = PathUtil.CachePath;
-        var flag2 = Directory.Exists(cachePath);
-        if (flag2) FileUtil.DeleteDirectorySafe(cachePath);
+        if (Directory.Exists(cachePath))
+            FileUtil.DeleteDirectorySafe(cachePath);
     }
 
     private static Action? _killGameAction;

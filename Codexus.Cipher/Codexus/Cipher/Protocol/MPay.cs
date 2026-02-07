@@ -214,7 +214,7 @@ public class MPay : IDisposable
         File.WriteAllText(filename, content);
     }
 
-    public static byte[] LoadFromFile(string filename)
+    public static byte[]? LoadFromFile(string filename)
     {
         byte[] array;
         try

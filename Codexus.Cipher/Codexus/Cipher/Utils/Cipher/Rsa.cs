@@ -11,14 +11,12 @@ public static class Rsa
 {
     public static AsymmetricKeyParameter LoadPublicKey(string base64PublicKey)
     {
-        var array = Convert.FromBase64String(base64PublicKey);
-        return PublicKeyFactory.CreateKey(array);
+        return PublicKeyFactory.CreateKey(Convert.FromBase64String(base64PublicKey));
     }
 
     public static AsymmetricKeyParameter LoadPrivateKey(string base64PrivateKey)
     {
-        var array = Convert.FromBase64String(base64PrivateKey);
-        return PrivateKeyFactory.CreateKey(array);
+        return PrivateKeyFactory.CreateKey(Convert.FromBase64String(base64PrivateKey));
     }
 
     public static byte[] RsaWithPkcs1(AsymmetricKeyParameter key, byte[] data, bool forEncryption)
@@ -34,8 +32,6 @@ public static class Rsa
             var array = pkcs1Encoding.ProcessBlock(data, i, num);
             memoryStream.Write(array, 0, array.Length);
         }
-
-        var array2 = memoryStream.ToArray();
-        return array2;
+        return memoryStream.ToArray();
     }
 }

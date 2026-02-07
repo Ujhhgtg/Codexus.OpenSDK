@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Codexus.Cipher.Entities.WPFLauncher.NetGame.Texture;
 using Codexus.Development.SDK.RakNet;
@@ -15,240 +14,240 @@ namespace Codexus.Game.Launcher.Services.Bedrock;
 
 public sealed class LauncherService : IDisposable
 {
-    public Guid Identifier { get; } = Guid.NewGuid();
-    public EntityLaunchPeGame Entity { get; }
-    public EntityProgressUpdate LastProgress { get; private set; }
-    public event Action<Guid>? Exited;
+	private readonly IProgress<EntityProgressUpdate> _progress;
 
-    private LauncherService(EntityLaunchPeGame? entityLaunchGame, string? userToken,
-        IProgress<EntityProgressUpdate>? progress)
-    {
-        ArgumentNullException.ThrowIfNull(entityLaunchGame);
-        Entity = entityLaunchGame;
-        ArgumentNullException.ThrowIfNull(userToken);
-        _userToken = userToken;
-        ArgumentNullException.ThrowIfNull(progress);
-        _progress = progress;
-        LastProgress = new EntityProgressUpdate
-        {
-            Id = Identifier,
-            Percent = 0,
-            Message = "Initialized"
-        };
-    }
+	private readonly string _userToken;
 
-    public static LauncherService CreateLauncher(EntityLaunchPeGame entityLaunchGame, string userToken,
-        IProgress<EntityProgressUpdate> progress)
-    {
-        var launcherService = new LauncherService(entityLaunchGame, userToken, progress);
-        Task.Run(launcherService.LaunchGameAsync);
-        return launcherService;
-    }
+	private readonly object _disposeLock = new object();
 
-    private async Task LaunchGameAsync()
-    {
-        try
-        {
-            var disposed = _disposed;
-            if (!disposed)
-            {
-                await DownloadGameResourcesAsync().ConfigureAwait(false);
-                if (!_disposed)
-                {
-                    var num = await LaunchProxyAsync().ConfigureAwait(false);
-                    if (!_disposed) await StartGameProcessAsync(num).ConfigureAwait(false);
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            UpdateProgress(100, "Launch cancelled");
-        }
-        catch (Exception exception)
-        {
-            Log.Error(exception, "Error while launching game for {GameId}", Entity.GameId);
-            UpdateProgress(100, "Launch failed");
-        }
-    }
+	private Process? _gameProcess;
 
-    private async Task DownloadGameResourcesAsync()
-    {
-        UpdateProgress(5, "Installing game resources");
-        var flag = await InstallerService.DownloadMinecraftAsync().ConfigureAwait(false);
-        var flag2 = !flag;
-        if (flag2) throw new InvalidOperationException("Failed to download Minecraft resources");
-    }
+	private IRakNet? _rakNet;
 
-    private Task<int> LaunchProxyAsync()
-    {
-        UpdateProgress(60, "Launching proxy");
-        var availablePort = NetworkUtil.GetAvailablePort();
-        var availablePort2 = NetworkUtil.GetAvailablePort();
-        var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(1, 2);
-        defaultInterpolatedStringHandler.AppendFormatted(Entity.ServerIp);
-        defaultInterpolatedStringHandler.AppendLiteral(":");
-        defaultInterpolatedStringHandler.AppendFormatted(Entity.ServerPort);
-        var text = defaultInterpolatedStringHandler.ToStringAndClear();
-        var flag = Entity.GameType == EnumGType.ServerGame;
-        try
-        {
-            _rakNet = RakNetLoader.ConstructLoader().Create(text, Entity.AccessToken, Entity.GameId,
-                Convert.ToUInt32(Entity.UserId), _userToken, Entity.GameName, Entity.RoleName, availablePort,
-                availablePort2, flag);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Bedrock interceptor failed to launch for {GameId}", Entity.GameId);
-            throw new InvalidOperationException("Failed to initialize RakNet proxy", ex);
-        }
+	private volatile bool _disposed;
 
-        return Task.FromResult(availablePort);
-    }
+	public Guid Identifier { get; } = Guid.NewGuid();
 
-    private Task StartGameProcessAsync(int port)
-    {
-        UpdateProgress(70, "Launching game process");
-        var launchPath = GetLaunchPath();
-        ValidateLaunchPath(launchPath);
-        ConfigService.GenerateLaunchConfig(Entity.SkinPath, Entity.RoleName, Entity.GameId, port);
-        var text = Path.Combine(PathUtil.CppGamePath, "launch.cppconfig");
-        var process = CommandService.StartGame(launchPath, text);
-        var flag = process == null;
-        if (flag)
-        {
-            var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(43, 2);
-            defaultInterpolatedStringHandler.AppendLiteral("Game launch failed for LaunchType: ");
-            defaultInterpolatedStringHandler.AppendFormatted(Entity.LaunchType);
-            defaultInterpolatedStringHandler.AppendLiteral(", Role: ");
-            defaultInterpolatedStringHandler.AppendFormatted(Entity.RoleName);
-            Log.Error(defaultInterpolatedStringHandler.ToStringAndClear());
-            throw new InvalidOperationException("Failed to start game process");
-        }
+	public EntityLaunchPeGame Entity { get; }
 
-        SetupGameProcess(process);
-        UpdateProgress(100, "Running");
-        Log.Information("Game launched successfully. LaunchType: {LaunchType}, ProcessID: {ProcessId}, Role: {Role}",
-            Entity.LaunchType, process.Id, Entity.RoleName);
-        return Task.CompletedTask;
-    }
+	public EntityProgressUpdate LastProgress { get; private set; }
 
-    private string GetLaunchPath()
-    {
-        string text;
-        if (Entity.LaunchType == EnumLaunchType.Custom && !string.IsNullOrEmpty(Entity.LaunchPath))
-            text = Path.Combine(Entity.LaunchPath, "windowsmc", "Minecraft.Windows.exe");
-        else
-            text = Path.Combine(PathUtil.CppGamePath, "windowsmc", "Minecraft.Windows.exe");
-        return text;
-    }
+	public event Action<Guid>? Exited;
 
-    private static void ValidateLaunchPath(string launchPath)
-    {
-        if (!File.Exists(launchPath))
-            throw new FileNotFoundException("Executable not found at " + launchPath, launchPath);
-    }
+	private LauncherService(EntityLaunchPeGame entityLaunchGame, string userToken, IProgress<EntityProgressUpdate> progress)
+	{
+		Entity = entityLaunchGame ?? throw new ArgumentNullException("entityLaunchGame");
+		_userToken = userToken ?? throw new ArgumentNullException("userToken");
+		_progress = progress ?? throw new ArgumentNullException("progress");
+		LastProgress = new EntityProgressUpdate
+		{
+			Id = Identifier,
+			Percent = 0,
+			Message = "Initialized"
+		};
+	}
 
-    private void SetupGameProcess(Process process)
-    {
-        _gameProcess = process;
-        _gameProcess.EnableRaisingEvents = true;
-        _gameProcess.Exited += OnGameProcessExited;
-    }
+	public static LauncherService CreateLauncher(EntityLaunchPeGame entityLaunchGame, string userToken, IProgress<EntityProgressUpdate> progress)
+	{
+		var launcherService = new LauncherService(entityLaunchGame, userToken, progress);
+		Task.Run((Func<Task?>)launcherService.LaunchGameAsync);
+		return launcherService;
+	}
 
-    private void OnGameProcessExited(object? sender, EventArgs e)
-    {
-        try
-        {
-            var exited = Exited;
-            if (exited != null) exited(Identifier);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Error in game process exit handler for {GameId}", Entity.GameId);
-        }
-    }
+	private async Task LaunchGameAsync()
+	{
+		try
+		{
+			if (_disposed)
+			{
+				return;
+			}
+			await DownloadGameResourcesAsync().ConfigureAwait(continueOnCapturedContext: false);
+			if (!_disposed)
+			{
+				var port = await LaunchProxyAsync().ConfigureAwait(continueOnCapturedContext: false);
+				if (!_disposed)
+				{
+					await StartGameProcessAsync(port).ConfigureAwait(continueOnCapturedContext: false);
+				}
+			}
+		}
+		catch (OperationCanceledException)
+		{
+			UpdateProgress(100, "Launch cancelled");
+		}
+		catch (Exception exception)
+		{
+			Log.Error(exception, "Error while launching game for {GameId}", Entity.GameId);
+			UpdateProgress(100, "Launch failed");
+		}
+	}
 
-    private void UpdateProgress(int percent, string message)
-    {
-        var disposed = _disposed;
-        if (!disposed)
-        {
-            var entityProgressUpdate = new EntityProgressUpdate();
-            entityProgressUpdate.Id = Identifier;
-            entityProgressUpdate.Percent = percent;
-            entityProgressUpdate.Message = message;
-            LastProgress = entityProgressUpdate;
-            try
-            {
-                _progress.Report(entityProgressUpdate);
-                var flag = percent == 100;
-                if (flag) SyncProgressBarUtil.ProgressBar.ClearCurrent();
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Error reporting progress for {GameId}", Entity.GameId);
-            }
-        }
-    }
+	private async Task DownloadGameResourcesAsync()
+	{
+		UpdateProgress(5, "Installing game resources");
+		if (!(await InstallerService.DownloadMinecraftAsync().ConfigureAwait(continueOnCapturedContext: false)))
+		{
+			throw new InvalidOperationException("Failed to download Minecraft resources");
+		}
+	}
 
-    public Process? GetProcess()
-    {
-        var process = !_disposed ? _gameProcess : null;
-        return process;
-    }
+	private Task<int> LaunchProxyAsync()
+	{
+		UpdateProgress(60, "Launching proxy");
+		var availablePort = NetworkUtil.GetAvailablePort();
+		var availablePort2 = NetworkUtil.GetAvailablePort();
+		var remoteAddress = $"{Entity.ServerIp}:{Entity.ServerPort}";
+		var isRental = Entity.GameType == EnumGType.ServerGame;
+		try
+		{
+			_rakNet = RakNetLoader.ConstructLoader().Create(remoteAddress, Entity.AccessToken, Entity.GameId, Convert.ToUInt32(Entity.UserId), _userToken, Entity.GameName, Entity.RoleName, availablePort, availablePort2, isRental);
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "Bedrock interceptor failed to launch for {GameId}", Entity.GameId);
+			throw new InvalidOperationException("Failed to initialize RakNet proxy", ex);
+		}
+		return Task.FromResult(availablePort);
+	}
 
-    public void ShutdownAsync()
-    {
-        Dispose();
-    }
+	private Task StartGameProcessAsync(int port)
+	{
+		UpdateProgress(70, "Launching game process");
+		var launchPath = GetLaunchPath();
+		ValidateLaunchPath(launchPath);
+		ConfigService.GenerateLaunchConfig(Entity.SkinPath, Entity.RoleName, Entity.GameId, port);
+		var process = CommandService.StartGame(launchPath, Path.Combine(PathUtil.CppGamePath, "launch.cppconfig"));
+		if (process == null)
+		{
+			Log.Error($"Game launch failed for LaunchType: {Entity.LaunchType}, Role: {Entity.RoleName}");
+			throw new InvalidOperationException("Failed to start game process");
+		}
+		SetupGameProcess(process);
+		UpdateProgress(100, "Running");
+		Log.Information("Game launched successfully. LaunchType: {LaunchType}, ProcessID: {ProcessId}, Role: {Role}", Entity.LaunchType, process.Id, Entity.RoleName);
+		return Task.CompletedTask;
+	}
 
-    public void Dispose()
-    {
-        if (!_disposed)
-        {
-            lock (_disposeLock)
-            {
-                if (_disposed) return;
-                _disposed = true;
-            }
+	private string GetLaunchPath()
+	{
+		if (Entity.LaunchType == EnumLaunchType.Custom && !string.IsNullOrEmpty(Entity.LaunchPath))
+		{
+			return Path.Combine(Entity.LaunchPath, "windowsmc", "Minecraft.Windows.exe");
+		}
+		return Path.Combine(PathUtil.CppGamePath, "windowsmc", "Minecraft.Windows.exe");
+	}
 
-            try
-            {
-                if (_gameProcess != null)
-                {
-                    _gameProcess.Exited -= OnGameProcessExited;
-                    if (!_gameProcess.HasExited)
-                    {
-                        _gameProcess.CloseMainWindow();
-                        if (!_gameProcess.WaitForExit(5000)) _gameProcess.Kill();
-                    }
+	private static void ValidateLaunchPath(string launchPath)
+	{
+		if (!File.Exists(launchPath))
+		{
+			throw new FileNotFoundException("Executable not found at " + launchPath, launchPath);
+		}
+	}
 
-                    _gameProcess.Dispose();
-                    _gameProcess = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Error disposing game process for {GameId}", Entity.GameId);
-            }
+	private void SetupGameProcess(Process process)
+	{
+		_gameProcess = process;
+		_gameProcess.EnableRaisingEvents = true;
+		_gameProcess.Exited += OnGameProcessExited;
+	}
 
-            try
-            {
-                var rakNet = _rakNet;
-                rakNet?.Shutdown();
-                _rakNet = null;
-            }
-            catch (Exception ex2)
-            {
-                Log.Warning(ex2, "Error shutting down RakNet for {GameId}", Entity.GameId);
-            }
-        }
-    }
+	private void OnGameProcessExited(object? sender, EventArgs e)
+	{
+		try
+		{
+			this.Exited?.Invoke(Identifier);
+		}
+		catch (Exception exception)
+		{
+			Log.Warning(exception, "Error in game process exit handler for {GameId}", Entity.GameId);
+		}
+	}
 
-    private readonly IProgress<EntityProgressUpdate> _progress;
-    private readonly string _userToken;
-    private readonly object _disposeLock = new();
-    private Process? _gameProcess;
-    private IRakNet? _rakNet;
-    private volatile bool _disposed;
+	private void UpdateProgress(int percent, string message)
+	{
+		if (_disposed)
+		{
+			return;
+		}
+		var value = (LastProgress = new EntityProgressUpdate
+		{
+			Id = Identifier,
+			Percent = percent,
+			Message = message
+		});
+		try
+		{
+			_progress.Report(value);
+			if (percent == 100)
+			{
+				SyncProgressBarUtil.ProgressBar.ClearCurrent();
+			}
+		}
+		catch (Exception exception)
+		{
+			Log.Warning(exception, "Error reporting progress for {GameId}", Entity.GameId);
+		}
+	}
+
+	public Process? GetProcess()
+	{
+		if (!_disposed)
+		{
+			return _gameProcess;
+		}
+		return null;
+	}
+
+	public void ShutdownAsync()
+	{
+		Dispose();
+	}
+
+	public void Dispose()
+	{
+		if (_disposed)
+		{
+			return;
+		}
+		lock (_disposeLock)
+		{
+			if (_disposed)
+			{
+				return;
+			}
+			_disposed = true;
+		}
+		try
+		{
+			if (_gameProcess != null)
+			{
+				_gameProcess.Exited -= OnGameProcessExited;
+				if (!_gameProcess.HasExited)
+				{
+					_gameProcess.CloseMainWindow();
+					if (!_gameProcess.WaitForExit(5000))
+					{
+						_gameProcess.Kill();
+					}
+				}
+				_gameProcess.Dispose();
+				_gameProcess = null;
+			}
+		}
+		catch (Exception exception)
+		{
+			Log.Warning(exception, "Error disposing game process for {GameId}", Entity.GameId);
+		}
+		try
+		{
+			_rakNet?.Shutdown();
+			_rakNet = null;
+		}
+		catch (Exception exception2)
+		{
+			Log.Warning(exception2, "Error shutting down RakNet for {GameId}", Entity.GameId);
+		}
+	}
 }

@@ -13,7 +13,7 @@ public static class InterConn
     {
         var httpResponseMessage = await Core.PostAsync("/interconn/web/game-play-v2/login-start",
             "{\"strict_mode\":true}",
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, entityId, entityToken));
             });
@@ -29,7 +29,7 @@ public static class InterConn
                     GameId = gameId,
                     ItemList = ["10000"]
                 }),
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, entityId, entityToken));
             });
@@ -38,5 +38,5 @@ public static class InterConn
     }
 
     private static readonly HttpWrapper Core = new("https://x19obtcore.nie.netease.com:8443",
-        delegate(HttpWrapper.HttpWrapperBuilder builder) { builder.UserAgent(WPFLauncher.GetUserAgent()); });
+        builder => { builder.UserAgent(WPFLauncher.GetUserAgent()); });
 }

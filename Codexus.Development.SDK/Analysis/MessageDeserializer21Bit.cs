@@ -16,31 +16,34 @@ public class MessageDeserializer21Bit : ByteToMessageDecoder
         var array = new byte[3];
         for (var i = 0; i < 3; i++)
         {
-            var flag = !message.IsReadable();
-            if (flag)
+            if (!message.IsReadable())
             {
                 message.ResetReaderIndex();
                 break;
             }
-
             array[i] = message.ReadByte();
-            var flag2 = array[i] >= 128;
-            if (!flag2)
-                try
+            if (array[i] >= 128)
+            {
+                continue;
+            }
+            try
+            {
+                var num = array.ReadVarInt();
+                if (message.ReadableBytes >= num)
                 {
-                    var num = array.ReadVarInt();
-                    var flag3 = message.ReadableBytes >= num;
-                    if (flag3)
-                        output.Add(message.ReadBytes(num));
-                    else
-                        message.ResetReaderIndex();
-                    break;
+                    output.Add(message.ReadBytes(num));
                 }
-                catch (Exception ex)
+                else
                 {
-                    Log.Error(ex, "Failed to decode message.", Array.Empty<object>());
-                    break;
+                    message.ResetReaderIndex();
                 }
+                break;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[MessageDeserializer21Bit] Failed to decode message");
+                break;
+            }
         }
     }
 }

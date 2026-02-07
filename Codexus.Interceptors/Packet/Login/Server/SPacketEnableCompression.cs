@@ -31,7 +31,7 @@ public class SPacketEnableCompression : IPacket
 
     public bool HandlePacket(GameConnection connection)
     {
-        GameConnection.EnableCompression(connection.ServerChannel, CompressionThreshold);
+        GameConnection.EnableCompression(connection.ServerChannel!, CompressionThreshold);
         return true;
     }
 }

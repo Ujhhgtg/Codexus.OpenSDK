@@ -13,7 +13,7 @@ public static class JreService
     {
         var jreFile = Path.Combine(PathUtil.JavaPath, "Jre.7z");
         var progress = new SyncProgressBarUtil.ProgressBar(100);
-        IProgress<SyncProgressBarUtil.ProgressReport> uiProgress =
+        var uiProgress =
             new SyncCallback<SyncProgressBarUtil.ProgressReport>(delegate(SyncProgressBarUtil.ProgressReport update)
             {
                 progress.Update(update.Percent, update.Message);

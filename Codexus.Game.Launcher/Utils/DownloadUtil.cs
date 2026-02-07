@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
@@ -55,23 +56,13 @@ public static class DownloadUtil
         }
     }
 
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     private static async Task<bool> MultiSegmentDownloadAsync(
         string url, string path, long totalSize, Action<uint>? progress, int maxSegments, CancellationToken ct)
     {
         // Initialize shared state for reporting
         long totalRead = 0;
         var lastReportedPercent = -1;
-
-        void ReportProgress(int bytesRead)
-        {
-            var read = Interlocked.Add(ref totalRead, bytesRead);
-            var percent = (int)((double)read / totalSize * 100);
-            if (percent > lastReportedPercent)
-            {
-                lastReportedPercent = percent;
-                progress?.Invoke((uint)percent);
-            }
-        }
 
         using var mmFile =
             MemoryMappedFile.CreateFromFile(path, FileMode.Create, null, totalSize, MemoryMappedFileAccess.ReadWrite);
@@ -95,6 +86,17 @@ public static class DownloadUtil
         await Task.WhenAll(tasks);
         progress?.Invoke(100U);
         return true;
+
+        void ReportProgress(int bytesRead)
+        {
+            var read = Interlocked.Add(ref totalRead, bytesRead);
+            var percent = (int)((double)read / totalSize * 100);
+            if (percent > lastReportedPercent)
+            {
+                lastReportedPercent = percent;
+                progress?.Invoke((uint)percent);
+            }
+        }
     }
 
     private static async Task DownloadRangeWithRetryAsync(
@@ -109,8 +111,8 @@ public static class DownloadUtil
                 using var resp = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
                 resp.EnsureSuccessStatusCode();
 
-                using var netStream = await resp.Content.ReadAsStreamAsync(ct);
-                using var viewStream = mmFile.CreateViewStream(range.Start, range.End - range.Start + 1,
+                await using var netStream = await resp.Content.ReadAsStreamAsync(ct);
+                await using var viewStream = mmFile.CreateViewStream(range.Start, range.End - range.Start + 1,
                     MemoryMappedFileAccess.Write);
 
                 var buffer = new byte[8192];
@@ -143,8 +145,8 @@ public static class DownloadUtil
         long totalRead = 0;
 
         // Open both streams with 'using' for safe cleanup
-        using var input = await resp.Content.ReadAsStreamAsync(ct);
-        using var output =
+        await using var input = await resp.Content.ReadAsStreamAsync(ct);
+        await using var output =
             new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
 
         var buffer = new byte[8192];

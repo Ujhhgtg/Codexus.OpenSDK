@@ -17,9 +17,7 @@ public static class UrlsUtil
     public const string X19JreUrlX64 = "https://x19.gdl.netease.com/jre-v64-220420.7z";
     public const string G79CoreServerUrl = "https://g79obtcore.nie.netease.com:8443";
     public const string G79WebServerUrl = "https://g79mclobt.minecraft.cn";
-
     public const string G79MinecraftUrl =
         "https://x19.gdl.netease.com/release2_20250402_3.4.Win32.Netease.r20.OGL.Publish_3.4.5.273310_20250627104722.7z";
-
     public const string G79Minecraft7ZMd5 = "50ac5016023c295222b979565b9c707b";
 }

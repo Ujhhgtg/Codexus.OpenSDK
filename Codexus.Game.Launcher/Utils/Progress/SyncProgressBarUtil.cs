@@ -93,7 +93,7 @@ public static class SyncProgressBarUtil
 
     public class ProgressReport
     {
-        public int Percent { get; set; }
-        public string Message { get; set; } = "";
+        public int Percent { get; init; }
+        public string Message { get; init; } = "";
     }
 }

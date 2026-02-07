@@ -21,7 +21,7 @@ public static class InternalQuery
 
     public static string ToAimInfo()
     {
-        var geoLocationData = JsonSerializer.Deserialize<GeoLocationData>(Convert.FromBase64String(WhoAmi.Payload));
+        var geoLocationData = JsonSerializer.Deserialize<GeoLocationData>(Convert.FromBase64String(WhoAmi.Payload))!;
         return JsonSerializer.Serialize(new EntityAimInfo
         {
             Code1 = geoLocationData.Code1,
@@ -66,7 +66,7 @@ public static class InternalQuery
             });
         httpResponseMessage.EnsureSuccessStatusCode();
         var text = await httpResponseMessage.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<EntityWhoAmi>(text, DefaultOptions);
+        return JsonSerializer.Deserialize<EntityWhoAmi>(text, DefaultOptions)!;
     }
 
     private static readonly HttpWrapper Client = new();

@@ -10,283 +10,265 @@ namespace Codexus.Development.SDK.Extensions;
 
 public static class NettyExtensions
 {
-    public static int ReadVarInt(this byte[] buffer)
-    {
-        var num = 0;
-        var num2 = 0;
-        foreach (sbyte b in buffer)
-        {
-            num |= (b & sbyte.MaxValue) << (num2++ * 7);
-            var flag = num2 > 5;
-            if (flag) throw new Exception("VarInt too big");
-            var flag2 = (b & 128) != 128;
-            if (flag2) return num;
-        }
+	public static int ReadVarInt(this byte[] buffer)
+	{
+		var num = 0;
+		var num2 = 0;
+		foreach (var b in buffer)
+		{
+			var sb = (sbyte)b;
+			num |= (sb & 0x7F) << num2++ * 7;
+			if (num2 > 5)
+			{
+				throw new Exception("VarInt too big");
+			}
+			if ((sb & 0x80) != 128)
+			{
+				return num;
+			}
+		}
+		throw new IndexOutOfRangeException();
+	}
 
-        throw new IndexOutOfRangeException();
-    }
+	extension(IByteBuffer buffer)
+	{
+		public Position ReadPosition()
+		{
+			var num = buffer.ReadLong();
+			return new Position((int)(num >> 38), (int)(num << 52 >> 52), (int)(num << 26 >> 38));
+		}
 
-    extension(IByteBuffer buffer)
-    {
-        public Position ReadPosition()
-        {
-            var num = buffer.ReadLong();
-            var num2 = (int)(num >> 38);
-            var num3 = (int)((num << 52) >> 52);
-            var num4 = (int)((num << 26) >> 38);
-            return new Position(num2, num3, num4);
-        }
+		public int ReadVarIntFromBuffer()
+		{
+			var num = 0;
+			var num2 = 0;
+			while (true)
+			{
+				var b = buffer.ReadByte();
+				num |= (b & 0x7F) << num2;
+				if ((b & 0x80) == 0)
+				{
+					break;
+				}
+				num2 += 7;
+				if (num2 >= 32)
+				{
+					throw new Exception("VarInt is too big");
+				}
+			}
+			return num;
+		}
 
-        public int ReadVarIntFromBuffer()
-        {
-            var num = 0;
-            var num2 = 0;
-            for (;;)
-            {
-                var b = buffer.ReadByte();
-                num |= (b & 127) << num2;
-                var flag = (b & 128) == 0;
-                if (flag) break;
-                num2 += 7;
-                var flag2 = num2 >= 32;
-                if (flag2) goto Block_2;
-            }
+		public List<Property> ReadProperties()
+		{
+			var properties = new List<Property>();
+			buffer.ReadWithCount(delegate
+			{
+				var item = buffer.ReadProperty();
+				properties.Add(item);
+			});
+			return properties;
+		}
 
-            return num;
-            Block_2:
-            throw new Exception("VarInt is too big");
-        }
+		public Property ReadProperty()
+		{
+			var name = buffer.ReadStringFromBuffer(32767);
+			var value = buffer.ReadStringFromBuffer(32767);
+			var signature = buffer.ReadNullable(() => buffer.ReadStringFromBuffer(32767));
+			return new Property
+			{
+				Name = name,
+				Value = value,
+				Signature = signature
+			};
+		}
 
-        public List<Property> ReadProperties()
-        {
-            var properties = new List<Property>();
-            buffer.ReadWithCount(delegate
-            {
-                var property = buffer.ReadProperty();
-                properties.Add(property);
-            });
-            return properties;
-        }
+		public T? ReadNullable<T>(Func<T> action)
+		{
+			return !buffer.ReadBoolean() ? default : action();
+		}
 
-        public Property ReadProperty()
-        {
-            var text = buffer.ReadStringFromBuffer(32767);
-            var text2 = buffer.ReadStringFromBuffer(32767);
-            var text3 = buffer.ReadNullable(() => buffer.ReadStringFromBuffer(32767));
-            return new Property
-            {
-                Name = text,
-                Value = text2,
-                Signature = text3
-            };
-        }
+		public void ReadWithCount(Action action)
+		{
+			var num = buffer.ReadVarIntFromBuffer();
+			for (var i = 0; i < num; i++)
+			{
+				action();
+			}
+		}
 
-        public T? ReadNullable<T>(Func<T> action)
-        {
-            var flag = !buffer.ReadBoolean();
-            T t;
-            if (flag)
-                t = default;
-            else
-                t = action();
-            return t;
-        }
+		public string ReadStringFromBuffer(int maxLength)
+		{
+			var num = buffer.ReadVarIntFromBuffer();
+			if (num > maxLength * 4)
+			{
+				throw new Exception(
+					$"The received encoded string buffer length is longer than maximum allowed ({num} > {maxLength * 4})");
+			}
+			if (num < 0)
+			{
+				throw new Exception("The received encoded string buffer length is less than zero! Weird string!");
+			}
+			if (num > buffer.ReadableBytes)
+			{
+				num = buffer.ReadableBytes;
+			}
+			var array = new byte[num];
+			buffer.ReadBytes(array);
+			var text = Encoding.UTF8.GetString(array);
+			return text.Length > maxLength
+				? throw new Exception(
+					$"The received string length is longer than maximum allowed ({num} > {maxLength})")
+				: text;
+		}
 
-        public void ReadWithCount(Action action)
-        {
-            var num = buffer.ReadVarIntFromBuffer();
-            for (var i = 0; i < num; i++) action();
-        }
+		public byte[] ReadByteArrayFromBuffer(int length)
+		{
+			var array = new byte[length];
+			buffer.ReadBytes(array);
+			return array;
+		}
 
-        public string ReadStringFromBuffer(int maxLength)
-        {
-            var num = buffer.ReadVarIntFromBuffer();
-            var flag = num > maxLength * 4;
-            if (flag)
-                throw new Exception(string.Concat(new[]
-                {
-                    "The received encoded string buffer length is longer than maximum allowed (",
-                    num.ToString(),
-                    " > ",
-                    (maxLength * 4).ToString(),
-                    ")"
-                }));
-            var flag2 = num < 0;
-            if (flag2)
-                throw new Exception("The received encoded string buffer length is less than zero! Weird string!");
-            var flag3 = num > buffer.ReadableBytes;
-            if (flag3) num = buffer.ReadableBytes;
-            var array = new byte[num];
-            buffer.ReadBytes(array);
-            var @string = Encoding.UTF8.GetString(array);
-            var flag4 = @string.Length > maxLength;
-            if (flag4)
-                throw new Exception(string.Concat(new[]
-                {
-                    "The received string length is longer than maximum allowed (",
-                    num.ToString(),
-                    " > ",
-                    maxLength.ToString(),
-                    ")"
-                }));
-            return @string;
-        }
+		public byte[] ReadByteArrayFromBuffer()
+		{
+			var num = buffer.ReadVarIntFromBuffer();
+			if (num < 0)
+			{
+				throw new Exception("The received encoded string buffer length is less than zero! Weird string!");
+			}
+			var array = new byte[num];
+			buffer.ReadBytes(array);
+			return array;
+		}
 
-        public byte[] ReadByteArrayFromBuffer(int length)
-        {
-            var array = new byte[length];
-            buffer.ReadBytes(array);
-            return array;
-        }
+		public byte[] ReadByteArrayReadableBytes()
+		{
+			var array = new byte[buffer.ReadableBytes];
+			buffer.ReadBytes(array);
+			return array;
+		}
 
-        public byte[] ReadByteArrayFromBuffer()
-        {
-            var num = buffer.ReadVarIntFromBuffer();
-            var flag = num < 0;
-            if (flag) throw new Exception("The received encoded string buffer length is less than zero! Weird string!");
-            var array = new byte[num];
-            buffer.ReadBytes(array);
-            return array;
-        }
+		public IByteBuffer WriteStringToBuffer(string stringToWrite, int maxLength = 32767)
+		{
+			if (stringToWrite.Length > maxLength)
+			{
+				throw new Exception("String too big (was " + stringToWrite.Length + " bytes encoded, max " + maxLength + ")");
+			}
+			var bytes = Encoding.UTF8.GetBytes(stringToWrite);
+			buffer.WriteVarInt(bytes.Length);
+			buffer.WriteBytes(bytes);
+			return buffer;
+		}
 
-        public byte[] ReadByteArrayReadableBytes()
-        {
-            var array = new byte[buffer.ReadableBytes];
-            buffer.ReadBytes(array);
-            return array;
-        }
+		public IByteBuffer WriteByteArrayToBuffer(byte[] bytes)
+		{
+			return buffer.WriteVarInt(bytes.Length).WriteBytes(bytes);
+		}
 
-        public IByteBuffer WriteStringToBuffer(string stringToWrite, int maxLength = 32767)
-        {
-            var flag = stringToWrite.Length > maxLength;
-            if (flag)
-                throw new Exception(string.Concat(new[]
-                {
-                    "String too big (was ",
-                    stringToWrite.Length.ToString(),
-                    " bytes encoded, max ",
-                    maxLength.ToString(),
-                    ")"
-                }));
-            var bytes = Encoding.UTF8.GetBytes(stringToWrite);
-            buffer.WriteVarInt(bytes.Length);
-            buffer.WriteBytes(bytes);
-            return buffer;
-        }
+		public IByteBuffer WritePosition(int x, int y, int z)
+		{
+			return buffer.WritePosition(new Position(x, y, z));
+		}
 
-        public IByteBuffer WriteByteArrayToBuffer(byte[] bytes)
-        {
-            return buffer.WriteVarInt(bytes.Length).WriteBytes(bytes);
-        }
+		public IByteBuffer WritePosition(Position position)
+		{
+			return buffer.WriteLong((long)((((ulong)position.X & 0x3FFFFFFuL) << 38) | (((ulong)position.Z & 0x3FFFFFFuL) << 12) | ((ulong)position.Y & 0xFFFuL)));
+		}
 
-        public IByteBuffer WritePosition(int x, int y, int z)
-        {
-            return buffer.WritePosition(new Position(x, y, z));
-        }
+		public IByteBuffer WriteProperties(List<Property>? properties)
+		{
+			if (properties == null)
+			{
+				buffer.WriteVarInt(0);
+				return buffer;
+			}
 
-        public IByteBuffer WritePosition(Position position)
-        {
-            var num = ((position.X & 67108863L) << 38) | ((position.Z & 67108863L) << 12) | (position.Y & 4095L);
-            return buffer.WriteLong(num);
-        }
+			buffer.WriteWithCount(properties.Count, delegate(int index)
+			{
+				buffer.WriteProperty(properties[index]);
+			});
+			return buffer;
+		}
 
-        public IByteBuffer WriteProperties(List<Property> properties)
-        {
-            var flag = properties == null;
-            IByteBuffer byteBuffer;
-            if (flag)
-            {
-                buffer.WriteVarInt(0);
-                byteBuffer = buffer;
-            }
-            else
-            {
-                buffer.WriteWithCount(properties.Count,
-                    delegate(int index) { buffer.WriteProperty(properties[index]); });
-                byteBuffer = buffer;
-            }
+		public IByteBuffer WriteProperty(Property property)
+		{
+			buffer.WriteStringToBuffer(property.Name);
+			buffer.WriteStringToBuffer(property.Value);
+#pragma warning disable CS8604
+			buffer.WriteNullable(property.Signature == null, () => { buffer.WriteStringToBuffer(property.Signature); });
+#pragma warning restore CS8604
+			return buffer;
+		}
 
-            return byteBuffer;
-        }
+		public IByteBuffer WriteVarInt(int input)
+		{
+			while ((input & -128) != 0)
+			{
+				buffer.WriteByte((input & 0x7F) | 0x80);
+				input >>>= 7;
+			}
+			buffer.WriteByte(input);
+			return buffer;
+		}
 
-        public IByteBuffer WriteProperty(Property property)
-        {
-            buffer.WriteStringToBuffer(property.Name);
-            buffer.WriteStringToBuffer(property.Value);
-            buffer.WriteNullable(property.Signature == null,
-                delegate { buffer.WriteStringToBuffer(property.Signature); });
-            return buffer;
-        }
+		public void WriteWithCount(int count, Action<int> action)
+		{
+			buffer.WriteVarInt(count);
+			for (var i = 0; i < count; i++)
+			{
+				action(i);
+			}
+		}
 
-        public IByteBuffer WriteVarInt(int input)
-        {
-            while ((input & -128) != 0)
-            {
-                buffer.WriteByte((input & 127) | 128);
-                input >>>= 7;
-            }
+		public void WriteNullable(bool isNull, Action action)
+		{
+			if (isNull)
+			{
+				buffer.WriteBoolean(false);
+				return;
+			}
+			buffer.WriteBoolean(true);
+			action();
+		}
 
-            buffer.WriteByte(input);
-            return buffer;
-        }
+		public T WithReaderScope<T>(Func<IByteBuffer, T> action)
+		{
+			buffer.MarkReaderIndex();
+			try
+			{
+				return action(buffer);
+			}
+			finally
+			{
+				buffer.ResetReaderIndex();
+			}
+		}
 
-        public void WriteWithCount(int count, Action<int> action)
-        {
-            buffer.WriteVarInt(count);
-            for (var i = 0; i < count; i++) action(i);
-        }
+		public IByteBuffer WriteSignedByte(sbyte value)
+		{
+			buffer.WriteByte((byte)value);
+			return buffer;
+		}
+	}
 
-        public void WriteNullable(bool nullable, Action action)
-        {
-            if (nullable)
-            {
-                buffer.WriteBoolean(false);
-            }
-            else
-            {
-                buffer.WriteBoolean(true);
-                action();
-            }
-        }
+	public static int GetVarIntSize(this int input)
+	{
+		for (var i = 1; i < 5; i++)
+		{
+			if ((input & (-1 << i * 7)) == 0)
+			{
+				return i;
+			}
+		}
+		return 5;
+	}
 
-        public T WithReaderScope<T>(Func<IByteBuffer, T> action)
-        {
-            buffer.MarkReaderIndex();
-            T t;
-            try
-            {
-                t = action(buffer);
-            }
-            finally
-            {
-                buffer.ResetReaderIndex();
-            }
-
-            return t;
-        }
-
-        public IByteBuffer WriteSignedByte(sbyte value)
-        {
-            buffer.WriteByte((byte)value);
-            return buffer;
-        }
-    }
-
-    public static int GetVarIntSize(this int input)
-    {
-        for (var i = 1; i < 5; i++)
-        {
-            var flag = (input & (-1 << (i * 7))) == 0;
-            if (flag) return i;
-        }
-
-        return 5;
-    }
-
-    public static T GetOrDefault<T>(this IAttribute<T> attribute, Func<T> value)
-    {
-        var flag = attribute.Get() == null;
-        if (flag) attribute.SetIfAbsent(value());
-        return attribute.Get();
-    }
+	public static T GetOrDefault<T>(this IAttribute<T> attribute, Func<T> value)
+	{
+		if (attribute.Get() == null)
+		{
+			attribute.SetIfAbsent(value());
+		}
+		return attribute.Get();
+	}
 }

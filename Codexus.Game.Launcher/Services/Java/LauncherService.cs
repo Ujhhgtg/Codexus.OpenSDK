@@ -109,9 +109,7 @@ public sealed class LauncherService : IDisposable
     {
         ReportProgress(progressHandler, 5, "Installing game mods");
         var enumVersion = GameVersionConverter.Convert(Entity.GameVersionId);
-        var entityModsList = await InstallGameModsAsync(enumVersion);
-        _modList = entityModsList;
-        entityModsList = null;
+        _modList = await InstallGameModsAsync(enumVersion);
         ReportProgress(progressHandler, 15, "Preparing Java runtime");
         await PrepareJavaRuntimeAsync(enumVersion);
         ReportProgress(progressHandler, 30, "Preparing Minecraft client");
@@ -121,9 +119,7 @@ public sealed class LauncherService : IDisposable
         ReportProgress(progressHandler, 60, "Applying core mods");
         ApplyCoreMods(workingDirectory);
         ReportProgress(progressHandler, 75, "Initializing launcher");
-        var valueTuple = InitializeLauncher(enumVersion, workingDirectory);
-        var commandService = valueTuple.Item1;
-        var rpcPort = valueTuple.Item2;
+        var (commandService, rpcPort) = InitializeLauncher(enumVersion, workingDirectory);
         ReportProgress(progressHandler, 80, "Starting RPC service");
         LaunchRpcService(enumVersion, rpcPort);
         ReportProgress(progressHandler, 90, "Starting authentication socket service");
@@ -132,7 +128,7 @@ public sealed class LauncherService : IDisposable
         await StartGameProcessAsync(commandService, progressHandler);
     }
 
-    private IProgress<EntityProgressUpdate> CreateProgressHandler()
+    private SyncCallback<EntityProgressUpdate> CreateProgressHandler()
     {
         var progress = new SyncProgressBarUtil.ProgressBar(100);
         var uiProgress = new SyncCallback<SyncProgressBarUtil.ProgressReport>(
@@ -168,8 +164,8 @@ public sealed class LauncherService : IDisposable
     private static async Task PrepareJavaRuntimeAsync(EnumGameVersion enumVersion)
     {
         var path = enumVersion > EnumGameVersion.V_1_16 ? "jdk17" : "jre8";
-        var flag = !File.Exists(Path.Combine(Path.Combine(PathUtil.JavaPath, path), "bin", "javaw.exe"));
-        if (flag) await JreService.PrepareJavaRuntime();
+        if (!File.Exists(Path.Combine(Path.Combine(PathUtil.JavaPath, path), "bin", "javaw.exe")))
+            await JreService.PrepareJavaRuntime();
     }
 
     private async Task PrepareMinecraftClientAsync(EnumGameVersion enumVersion)
@@ -187,8 +183,7 @@ public sealed class LauncherService : IDisposable
     private void ApplyCoreMods(string workingDirectory)
     {
         var text = Path.Combine(workingDirectory, "mods");
-        var loadCoreMods = Entity.LoadCoreMods;
-        if (loadCoreMods)
+        if (Entity.LoadCoreMods)
             InstallerService.InstallCoreMods(Entity.GameId, text);
         else
             RemoveCoreModFiles(text);
@@ -199,8 +194,7 @@ public sealed class LauncherService : IDisposable
         var array = FileUtil.EnumerateFiles(modsPath, "jar");
         foreach (var text in array)
         {
-            var flag = text.Contains("@3");
-            if (flag) FileUtil.DeleteFileSafe(text);
+            if (text.Contains("@3")) FileUtil.DeleteFileSafe(text);
         }
     }
 
@@ -230,7 +224,7 @@ public sealed class LauncherService : IDisposable
     private void StartAuthenticationService()
     {
         _authLibProtocol = new AuthLibProtocol(IPAddress.Parse("127.0.0.1"), _socketPort,
-            JsonSerializer.Serialize<EntityModsList>(_modList), Entity.GameVersion, Entity.AccessToken);
+            JsonSerializer.Serialize<EntityModsList>(_modList!), Entity.GameVersion, Entity.AccessToken);
         _authLibProtocol.Start();
     }
 
@@ -255,7 +249,7 @@ public sealed class LauncherService : IDisposable
         Log.Information(
             "Game launched successfully. Game Version: {GameVersion}, Process ID: {ProcessId}, Role: {Role}",
             Entity.GameVersion, process.Id, Entity.RoleName);
-        MemoryOptimizer.GetInstance();
+        _ = MemoryOptimizer.GetInstance();
         return Task.CompletedTask;
     }
 
@@ -306,15 +300,6 @@ public sealed class LauncherService : IDisposable
         Dispose(false);
     }
 
-    private const string Skip32Key = "SaintSteve";
-    private const int DefaultSocketPort = 9876;
-    private const int DefaultRpcPort = 11413;
-    private const string JavaExeName = "javaw.exe";
-    private const string MinecraftDirectory = ".minecraft";
-    private const string ModsDirectory = "mods";
-    private const string SkinsDirectory = "Skins";
-    private const string CoreModPattern = "@3";
-    private const string JarExtension = "jar";
     private readonly IProgress<EntityProgressUpdate> _progress;
     private readonly string _protocolVersion;
     private readonly Skip32Cipher _skip32;

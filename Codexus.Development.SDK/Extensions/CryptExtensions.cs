@@ -11,11 +11,10 @@ public static class CryptExtensions
     {
         string text;
         using var sha = SHA1.Create();
-        var array = sha.ComputeHash(data);
-        Array.Reverse(array);
-        var bigInteger = new BigInteger(array);
-        var flag = bigInteger < 0L;
-        if (flag)
+        var hash = sha.ComputeHash(data);
+        Array.Reverse(hash);
+        var bigInteger = new BigInteger(hash);
+        if (bigInteger < 0L)
             text = "-" + (-bigInteger).ToString("x").TrimStart('0');
         else
             text = bigInteger.ToString("x").TrimStart('0');

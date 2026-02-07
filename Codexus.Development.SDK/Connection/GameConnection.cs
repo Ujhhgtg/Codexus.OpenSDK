@@ -62,13 +62,12 @@ public class GameConnection(
             .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(30.0))
             .Handler(new ActionChannelInitializer<IChannel>(delegate(IChannel channel)
             {
-                var enabled = socks5.Enabled;
-                if (enabled)
+                if (socks5.Enabled)
                 {
-                    var flag3 = !IPAddress.TryParse(socks5.Address, out var ipAddress);
-                    if (flag3)
+                    if (!IPAddress.TryParse(socks5.Address, out var ipAddress))
                         ipAddress = Dns.GetHostAddressesAsync(socks5.Address).GetAwaiter().GetResult()
                             .First();
+                    
                     channel.Pipeline.AddLast("socks5",
                         new Socks5ProxyHandler(new IPEndPoint(ipAddress, socks5.Port), socks5.Username,
                             socks5.Password));
@@ -82,35 +81,27 @@ public class GameConnection(
         {
             var finalAddress = EventManager.Instance.TriggerEvent("channel_connection",
                 new EventParseAddress(this, ForwardAddress, ForwardPort));
-            var channel2 =
-                await (IPAddress.TryParse(finalAddress.Address, out var address)
-                    ? bootstrap.ConnectAsync(address, finalAddress.Port)
-                    : bootstrap.ConnectAsync(finalAddress.Address, finalAddress.Port)).ContinueWith<IChannel>(
-                    delegate(Task<IChannel> channel)
-                    {
-                        var flag4 = !channel.IsFaulted;
-                        IChannel channel3;
-                        if (flag4)
-                        {
-                            channel3 = channel.Result;
-                        }
-                        else
-                        {
-                            Log.Error(channel.Exception, "Failed to connect to remote server {Address}:{Port}", [
-                                finalAddress.Address, finalAddress.Port
-                            ]);
-                            channel3 = null;
-                        }
+            var serverChannel = await (IPAddress.TryParse(finalAddress.Address, out var address)
+                ? bootstrap.ConnectAsync(address, finalAddress.Port)
+                : bootstrap.ConnectAsync(finalAddress.Address, finalAddress.Port)).ContinueWith<IChannel>(task =>
+            {
+                if (!task.IsFaulted)
+                {
+                    return task.Result;
+                }
 
-                        return channel3;
-                    });
-            var serverChannel = channel2;
+                Log.Error(task.Exception, "Failed to connect to remote server {Address}:{Port}", [
+                    finalAddress.Address, finalAddress.Port
+                ]);
+                return null;
+            });
             ServerChannel = serverChannel;
             _initialized = true;
         });
-        while (!_initialized) Thread.Sleep(100);
-        var flag2 = ServerChannel == null;
-        if (flag2) Shutdown();
+        while (!_initialized)
+            Thread.Sleep(100);
+        if (ServerChannel == null)
+            Shutdown();
     }
 
     public void OnServerReceived(IByteBuffer buffer)
@@ -123,22 +114,18 @@ public class GameConnection(
     {
         HandlePacketReceived(buffer, EnumPacketDirection.ServerBound, delegate(object data)
         {
-            var serverChannel = ServerChannel;
-            if (serverChannel != null) serverChannel.WriteAndFlushAsync(data);
+            ServerChannel?.WriteAndFlushAsync(data);
         });
     }
 
     public void Shutdown()
     {
         EventManager.Instance.TriggerEvent("channel_connection", new EventConnectionClosed(this));
-        Log.Debug("Shutting down connection...", []);
+        Log.Debug("Shutting down connection...");
         TaskGroup.ShutdownGracefullyAsync();
         ClientChannel.CloseAsync();
-        var serverChannel = ServerChannel;
-        if (serverChannel != null) serverChannel.CloseAsync();
-        var workerGroup = _workerGroup;
-        var flag = workerGroup != null;
-        if (flag) workerGroup.ShutdownGracefullyAsync();
+        ServerChannel?.CloseAsync();
+        _workerGroup?.ShutdownGracefullyAsync();
     }
 
     private void HandlePacketReceived(IByteBuffer buffer, EnumPacketDirection direction, Action<object> onRedirect)
@@ -146,8 +133,7 @@ public class GameConnection(
         buffer.MarkReaderIndex();
         var num = buffer.ReadVarIntFromBuffer();
         var packet = PacketManager.Instance.BuildPacket(State, direction, ProtocolVersion, num);
-        var flag = packet == null;
-        if (flag)
+        if (packet == null)
         {
             buffer.ResetReaderIndex();
             onRedirect(buffer);
@@ -155,8 +141,7 @@ public class GameConnection(
         else
         {
             var metadata = PacketManager.Instance.GetMetadata(packet);
-            var flag2 = metadata != null && metadata.Skip;
-            if (flag2)
+            if (metadata is { Skip: true })
             {
                 buffer.ResetReaderIndex();
                 onRedirect(buffer);
@@ -176,9 +161,8 @@ public class GameConnection(
                     throw;
                 }
 
-                var flag3 = packet.HandlePacket(this);
                 buffer.ResetReaderIndex();
-                if (!flag3)
+                if (!packet.HandlePacket(this))
                 {
                     onRedirect(packet);
                 }
@@ -188,26 +172,22 @@ public class GameConnection(
 
     public static void EnableCompression(IChannel channel, int threshold)
     {
-        var flag = threshold < 0;
-        if (flag)
+        if (threshold < 0)
         {
-            var flag2 = channel.Pipeline.Get("decompress") is NettyCompressionDecoder;
-            if (flag2) channel.Pipeline.Remove("decompress");
-            var flag3 = channel.Pipeline.Get("compress") is NettyCompressionEncoder;
-            if (flag3) channel.Pipeline.Remove("compress");
+            if (channel.Pipeline.Get("decompress") is NettyCompressionDecoder)
+                channel.Pipeline.Remove("decompress");
+            if (channel.Pipeline.Get("compress") is NettyCompressionEncoder)
+                channel.Pipeline.Remove("compress");
         }
         else
         {
-            var nettyCompressionDecoder = channel.Pipeline.Get("decompress") as NettyCompressionDecoder;
-            var flag4 = nettyCompressionDecoder != null;
-            if (flag4)
-                nettyCompressionDecoder.Threshold = threshold;
+            if (channel.Pipeline.Get("decompress") is NettyCompressionDecoder decoder)
+                decoder.Threshold = threshold;
             else
                 channel.Pipeline.AddAfter("splitter", "decompress", new NettyCompressionDecoder(threshold));
-            var nettyCompressionEncoder = channel.Pipeline.Get("compress") as NettyCompressionEncoder;
-            var flag5 = nettyCompressionEncoder != null;
-            if (flag5)
-                nettyCompressionEncoder.Threshold = threshold;
+
+            if (channel.Pipeline.Get("compress") is NettyCompressionEncoder encoder)
+                encoder.Threshold = threshold;
             else
                 channel.Pipeline.AddBefore("encoder", "compress", new NettyCompressionEncoder(threshold));
         }

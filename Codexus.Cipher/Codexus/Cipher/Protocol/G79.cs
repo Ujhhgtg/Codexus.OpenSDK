@@ -36,7 +36,7 @@ public class G79 : IDisposable
         string text;
         try
         {
-            text = JsonSerializer.Deserialize<EntityX19CookieRequest>(cookie).Json;
+            text = JsonSerializer.Deserialize<EntityX19CookieRequest>(cookie)!.Json;
         }
         catch (Exception)
         {
@@ -50,8 +50,7 @@ public class G79 : IDisposable
     {
         var text = ExtractCookie(cookieRequest);
         Log.Information("Try extracting cookie...");
-        var flag = cookieRequest.Contains("4399com");
-        if (flag) _mgbSdk.AuthSession(text).GetAwaiter().GetResult();
+        if (cookieRequest.Contains("4399com")) _mgbSdk.AuthSession(text).GetAwaiter().GetResult();
         Log.Information("Encrypting cookie...");
         using var api = new WebNexusApi(nexusToken);
         string text4;
@@ -66,18 +65,15 @@ public class G79 : IDisposable
             text4 = text5;
         }
 
-        var json = text4;
-        var body = JsonSerializer.Deserialize<EntityHttpEncrypt>(json).Body;
+        var body = JsonSerializer.Deserialize<EntityHttpEncrypt>(text4)!.Body;
         var httpResponseMessage = await _core.PostAsync("/pe-authentication", body);
         var text6 = await httpResponseMessage.Content.ReadAsStringAsync();
         Log.Information("Decrypting response...");
         var entity = JsonSerializer.Deserialize<Entity<JsonElement?>>(JsonSerializer
-            .Deserialize<EntityHttpDecrypt>(api.PeHttpDecryptAsync(text6).GetAwaiter().GetResult()).Body);
+            .Deserialize<EntityHttpDecrypt>(api.PeHttpDecryptAsync(text6).GetAwaiter().GetResult())!.Body);
         if (entity == null) throw new Exception("Failed to deserialize: " + text6);
         if (entity.Code != 0 || entity.Data == null) throw new Exception("Failed to deserialize: " + entity.Message);
-        var entityAuthenticationOtp =
-            JsonSerializer.Deserialize<EntityAuthenticationOtp>(entity.Data.Value.GetRawText());
-        return entityAuthenticationOtp;
+        return JsonSerializer.Deserialize<EntityAuthenticationOtp>(entity.Data.Value.GetRawText())!;
     }
 
     public Entity<EntityUserDetails> GetUserDetail(string userId, string userToken)
@@ -92,7 +88,7 @@ public class G79 : IDisposable
             Version = new Version(2, 0)
         });
         var httpResponseMessage = await _core.PostAsync("/pe-user-detail/get", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
@@ -114,12 +110,12 @@ public class G79 : IDisposable
             ChannelId = 5
         });
         var httpResponseMessage = await _client.PostAsync("/pe-game/query/get-list-v4", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
         var text = await httpResponseMessage.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Entities.G79.Entities<EntityNetGame>>(text);
+        return JsonSerializer.Deserialize<Entities.G79.Entities<EntityNetGame>>(text)!;
     }
 
     public Entity<EntityNetGameServerAddress> GetNetGameServerAddress(string userId, string userToken, string gameId)
@@ -135,12 +131,12 @@ public class G79 : IDisposable
             ItemId = gameId
         });
         var httpResponseMessage = await _client.PostAsync("/pe-game/query/get-server-address", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
         var text = await httpResponseMessage.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Entity<EntityNetGameServerAddress>>(text);
+        return JsonSerializer.Deserialize<Entity<EntityNetGameServerAddress>>(text)!;
     }
 
     public string GetAvailableRentalGames(string userId, string userToken, int offset)
@@ -157,7 +153,7 @@ public class G79 : IDisposable
             Offset = offset
         });
         var httpResponseMessage = await _client.PostAsync("/rental-server/query/available-by-sort-type", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
@@ -180,12 +176,12 @@ public class G79 : IDisposable
             Password = password
         });
         var httpResponseMessage = await _client.PostAsync("/rental-server-world-enter/get", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
         var text = await httpResponseMessage.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Entity<EntityRentalGameServerAddress>>(text);
+        return JsonSerializer.Deserialize<Entity<EntityRentalGameServerAddress>>(text)!;
     }
 
     public Entity<EntitySetNickName> SetNickName(string userId, string userToken, string nickName)
@@ -201,12 +197,12 @@ public class G79 : IDisposable
             EntityId = userId
         });
         var httpResponseMessage = await _client.PostAsync("/nickname-setting", body,
-            delegate(HttpWrapper.HttpWrapperBuilder builder)
+            builder =>
             {
                 builder.AddHeader(TokenUtil.ComputeHttpRequestToken(builder.Url, builder.Body, userId, userToken));
             });
         var text = await httpResponseMessage.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<Entity<EntitySetNickName>>(text);
+        return JsonSerializer.Deserialize<Entity<EntitySetNickName>>(text)!;
     }
 
     public G79()

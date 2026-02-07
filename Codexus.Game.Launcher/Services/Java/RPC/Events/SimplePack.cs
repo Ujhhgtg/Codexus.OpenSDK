@@ -7,110 +7,99 @@ namespace Codexus.Game.Launcher.Services.Java.RPC.Events;
 
 public static class SimplePack
 {
-    public static byte[]? Pack(params object[]? data)
-    {
-        byte[]? array;
-        if (data == null)
-        {
-            array = null;
-        }
-        else
-        {
-            var array2 = Array.Empty<byte>();
-            foreach (var obj in data)
-            {
-                var array3 = Array.Empty<byte>();
-                var type = obj.GetType();
-                switch (Type.GetTypeCode(type))
-                {
-                    case TypeCode.Object:
-                    {
-                        var flag2 = type == typeof(byte[]);
-                        if (flag2)
-                        {
-                            array3 = (byte[])obj;
-                        }
-                        else
-                        {
-                            var flag3 = type == typeof(List<uint>);
-                            if (flag3)
-                            {
-                                var list = new List<byte>();
-                                var bytes = BitConverter.GetBytes((ushort)(((List<uint>)obj).Count * 4));
-                                list.AddRange(array3);
-                                list.AddRange(bytes);
-                                foreach (var num in obj as List<uint>) list.AddRange(BitConverter.GetBytes(num));
-                                array3 = list.ToArray();
-                            }
-                            else
-                            {
-                                var flag4 = type == typeof(List<ulong>);
-                                if (flag4)
-                                {
-                                    var list2 = new List<byte>();
-                                    var bytes2 = BitConverter.GetBytes((ushort)(((List<ulong>)obj).Count * 8));
-                                    list2.AddRange(array3);
-                                    list2.AddRange(bytes2);
-                                    foreach (var num2 in obj as List<ulong>)
-                                        list2.AddRange(BitConverter.GetBytes(num2));
-                                    array3 = list2.ToArray();
-                                }
-                                else
-                                {
-                                    var flag5 = !(type == typeof(List<long>));
-                                    if (!flag5)
-                                    {
-                                        var list3 = new List<byte>();
-                                        var bytes3 = BitConverter.GetBytes((ushort)(((List<long>)obj).Count * 8));
-                                        list3.AddRange(array3);
-                                        list3.AddRange(bytes3);
-                                        foreach (var num3 in obj as List<long>)
-                                            list3.AddRange(BitConverter.GetBytes(num3));
-                                        array3 = list3.ToArray();
-                                    }
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-                    case TypeCode.Boolean:
-                        array3 = BitConverter.GetBytes((bool)obj);
-                        break;
-                    case TypeCode.Byte:
-                        array3 = [(byte)obj];
-                        break;
-                    case TypeCode.Int16:
-                        array3 = BitConverter.GetBytes((short)obj);
-                        break;
-                    case TypeCode.UInt16:
-                        array3 = BitConverter.GetBytes((ushort)obj);
-                        break;
-                    case TypeCode.Int32:
-                        array3 = BitConverter.GetBytes((int)obj);
-                        break;
-                    case TypeCode.UInt32:
-                        array3 = BitConverter.GetBytes((uint)obj);
-                        break;
-                    case TypeCode.Int64:
-                        array3 = BitConverter.GetBytes((long)obj);
-                        break;
-                    case TypeCode.Double:
-                        array3 = BitConverter.GetBytes((double)obj);
-                        break;
-                    case TypeCode.String:
-                        array3 = Encoding.UTF8.GetBytes((string)obj);
-                        array3 = Pack((ushort)array3.Length, array3);
-                        break;
-                }
-
-                var flag6 = array3 != null;
-                if (flag6) array2 = array2.Concat(array3).ToArray();
-            }
-
-            array = array2;
-        }
-
-        return array;
-    }
+	public static byte[]? Pack(params object[]? data)
+	{
+		if (data == null)
+		{
+			return null;
+		}
+		var array = Array.Empty<byte>();
+		foreach (var obj in data)
+		{
+			var array2 = Array.Empty<byte>();
+			var type = obj.GetType();
+			switch (Type.GetTypeCode(type))
+			{
+			case TypeCode.Object:
+				if (type == typeof(byte[]))
+				{
+					array2 = (byte[])obj;
+				}
+				else if (type == typeof(List<uint>))
+				{
+					var list = new List<byte>();
+					var bytes = BitConverter.GetBytes((ushort)(((List<uint>)obj).Count * 4));
+					list.AddRange(array2);
+					list.AddRange(bytes);
+					foreach (var item in obj as List<uint>)
+					{
+						list.AddRange(BitConverter.GetBytes(item));
+					}
+					array2 = list.ToArray();
+				}
+				else if (type == typeof(List<ulong>))
+				{
+					var list2 = new List<byte>();
+					var bytes2 = BitConverter.GetBytes((ushort)(((List<ulong>)obj).Count * 8));
+					list2.AddRange(array2);
+					list2.AddRange(bytes2);
+					foreach (var item2 in obj as List<ulong>)
+					{
+						list2.AddRange(BitConverter.GetBytes(item2));
+					}
+					array2 = list2.ToArray();
+				}
+				else
+				{
+					if (!(type == typeof(List<long>)))
+					{
+						break;
+					}
+					var list3 = new List<byte>();
+					var bytes3 = BitConverter.GetBytes((ushort)(((List<long>)obj).Count * 8));
+					list3.AddRange(array2);
+					list3.AddRange(bytes3);
+					foreach (var item3 in obj as List<long>)
+					{
+						list3.AddRange(BitConverter.GetBytes(item3));
+					}
+					array2 = list3.ToArray();
+				}
+				break;
+			case TypeCode.Boolean:
+				array2 = BitConverter.GetBytes((bool)obj);
+				break;
+			case TypeCode.Byte:
+				array2 = [(byte)obj];
+				break;
+			case TypeCode.Int16:
+				array2 = BitConverter.GetBytes((short)obj);
+				break;
+			case TypeCode.UInt16:
+				array2 = BitConverter.GetBytes((ushort)obj);
+				break;
+			case TypeCode.Int32:
+				array2 = BitConverter.GetBytes((int)obj);
+				break;
+			case TypeCode.UInt32:
+				array2 = BitConverter.GetBytes((uint)obj);
+				break;
+			case TypeCode.Int64:
+				array2 = BitConverter.GetBytes((long)obj);
+				break;
+			case TypeCode.Double:
+				array2 = BitConverter.GetBytes((double)obj);
+				break;
+			case TypeCode.String:
+				array2 = Encoding.UTF8.GetBytes((string)obj);
+				array2 = Pack((ushort)array2.Length, array2);
+				break;
+			}
+			if (array2 != null)
+			{
+				array = array.Concat(array2).ToArray();
+			}
+		}
+		return array;
+	}
 }

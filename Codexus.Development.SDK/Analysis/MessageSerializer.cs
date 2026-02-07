@@ -1,5 +1,4 @@
-﻿using Codexus.Development.SDK.Connection;
-using Codexus.Development.SDK.Extensions;
+﻿using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Manager;
 using Codexus.Development.SDK.Packet;
 using Codexus.Development.SDK.Utils;
@@ -15,8 +14,7 @@ public class MessageSerializer : MessageToByteEncoder<IPacket>
     {
         var gameConnection = context.Channel.GetAttribute(ChannelAttribute.Connection).Get();
         var packetId = PacketManager.Instance.GetPacketId(gameConnection.ProtocolVersion, message);
-        var flag = packetId != -1;
-        if (flag)
+        if (packetId != -1)
         {
             output.WriteVarInt(packetId);
             message.WriteToBuffer(output);

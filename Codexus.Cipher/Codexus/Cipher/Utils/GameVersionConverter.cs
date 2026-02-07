@@ -4,7 +4,7 @@ using Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
 namespace Codexus.Cipher.Utils;
 
-public class GameVersionConverter
+public static class GameVersionConverter
 {
     public static EnumGameVersion Convert(int versionId)
     {

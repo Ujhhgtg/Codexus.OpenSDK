@@ -11,10 +11,6 @@ namespace Codexus.Cipher.Protocol;
 
 public class MgbSdk(string gameId) : IDisposable
 {
-    // public MgbSdk(string gameId)
-    // {
-    // }
-
     public void Dispose()
     {
         _sdk.Dispose();
@@ -50,7 +46,7 @@ public class MgbSdk(string gameId) : IDisposable
         if (!httpResponseMessage2.IsSuccessStatusCode)
             throw new HttpRequestException(httpResponseMessage2.ReasonPhrase);
         var text = await httpResponseMessage2.Content.ReadAsStringAsync();
-        var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(text);
+        var dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(text)!;
         if (dictionary["code"].ToString() != "200")
         {
             const string text2 = "Status: ";
