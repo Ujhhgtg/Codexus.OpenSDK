@@ -11,9 +11,6 @@
 
     <ItemGroup>
         <Reference Include="BouncyCastle.Cryptography"/>
-        <Reference Include="Codexus.Development.SDK">
-            <HintPath>..\..\..\SDK\Codexus.Development.SDK.dll</HintPath>
-        </Reference>
         <Reference Include="Serilog"/>
         <Reference Include="System.IO.Hashing"/>
     </ItemGroup>
@@ -23,6 +20,10 @@
         <PackageReference Include="Serilog" Version="4.3.1-dev-02406"/>
         <PackageReference Include="SharpZipLib" Version="1.4.2"/>
         <PackageReference Include="System.IO.Hashing" Version="10.0.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Codexus.Development.SDK\Codexus.Development.SDK.csproj" />
     </ItemGroup>
 
 </Project>

@@ -747,7 +747,6 @@ public class WPFLauncher : IDisposable
     private async Task<Entity<EntityCoreLibResponse>> GetMinecraftClientLibsAsync(string userId, string userToken,
         EnumGameVersion? gameVersion = null)
     {
-        gameVersion.GetValueOrDefault();
         var flag = gameVersion == null;
         if (flag)
         {
