@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,11 +11,9 @@ using Codexus.Development.SDK.Entities;
 using Serilog;
 
 namespace Codexus.Development.SDK.Utils;
-
-// Token: 0x02000011 RID: 17
 public sealed class WebNexusApi : IDisposable
 {
-	// Token: 0x06000058 RID: 88 RVA: 0x000035F8 File Offset: 0x000017F8
+
 	// public WebNexusApi(string nexusToken,  Action<string, int>? progressCallback = null)
 	// {
 	// 	_httpClient = new HttpClient
@@ -59,74 +54,63 @@ public sealed class WebNexusApi : IDisposable
 		_progressCallback = progressCallback ?? ((_, _) => { });
 	}
 
-	// Token: 0x06000059 RID: 89 RVA: 0x000036AA File Offset: 0x000018AA
 	public void Dispose()
 	{
 		Dispose(true);
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x0600005A RID: 90 RVA: 0x000036BC File Offset: 0x000018BC
 	public async Task<string> ComputeAuthenticationBodyAsync(string serverId, long gameId, string gameVersion, string modInfo, string channel, int userId, string handshakeKey)
 	{
 		var requestData = new { serverId, gameId, gameVersion, modInfo, channel, userId, handshakeKey };
 		return await PostAsync("/api/GameCipher/compute/authentication/body", requestData);
 	}
 
-	// Token: 0x0600005B RID: 91 RVA: 0x00003738 File Offset: 0x00001938
 	public async Task<string> ComputeHandshakeBodyAsync(int userId, string userToken, string base64Context, string channel, string gameVersion)
 	{
 		var requestData = new { userId, userToken, base64Context, channel, gameVersion };
 		return await PostAsync("/api/GameCipher/compute/authentication/handshake", requestData);
 	}
 
-	// Token: 0x0600005C RID: 92 RVA: 0x000037A4 File Offset: 0x000019A4
 	public async Task<string> PeAccountConvert(string body)
 	{
 		var requestData = new { body };
 		return await PostAsync("/api/PeGameCipher/account/convert", requestData);
 	}
 
-	// Token: 0x0600005D RID: 93 RVA: 0x000037F0 File Offset: 0x000019F0
 	public async Task<string> PeAuthentication(string clientKey, string displayName, string serverId, string gameType, uint userId, string userToken)
 	{
 		var requestData = new { clientKey, displayName, serverId, gameType, userId, userToken };
 		return await PostAsync("/api/PeGameCipher/authentication", requestData);
 	}
 
-	// Token: 0x0600005E RID: 94 RVA: 0x00003864 File Offset: 0x00001A64
 	public async Task<string> PeHttpEncryptAsync(string body)
 	{
 		var requestData = new { body };
 		return await PostAsync("/api/PeGameCipher/crypto/encrypt", requestData);
 	}
 
-	// Token: 0x0600005F RID: 95 RVA: 0x000038B0 File Offset: 0x00001AB0
 	public async Task<string> PeHttpDecryptAsync(string body)
 	{
 		var requestData = new { body };
 		return await PostAsync("/api/PeGameCipher/crypto/decrypt", requestData);
 	}
 
-	// Token: 0x06000060 RID: 96 RVA: 0x000038FC File Offset: 0x00001AFC
 	public string PeMcpGetCheckNum(string dynamicPyCode, string dynamicCheckSalt, string gamePlayerId)
 	{
 		return JsonSerializer.Deserialize<BodyIn>(PostAsync("/api/PeZeroKnowledgeProof/zkp/get/check-num", new { dynamicPyCode, dynamicCheckSalt, gamePlayerId }).GetAwaiter().GetResult()).Body;
 	}
 
-	// Token: 0x06000061 RID: 97 RVA: 0x0000393C File Offset: 0x00001B3C
 	public string PeMcpGetStartType(string signature, string userId)
 	{
 		return JsonSerializer.Deserialize<BodyIn>(PostAsync("/api/PeZeroKnowledgeProof/zkp/get/start-type", new { signature, userId }).GetAwaiter().GetResult()).Body;
 	}
 
-	// Token: 0x06000062 RID: 98 RVA: 0x0000397C File Offset: 0x00001B7C
 	public IdCard GetRandomIdCard()
 	{
 		return JsonSerializer.Deserialize<IdCard>(GetAsync("/api/app/get/app/id-card").GetAwaiter().GetResult());
 	}
 
-	// Token: 0x06000063 RID: 99 RVA: 0x000039B0 File Offset: 0x00001BB0
 	public string ComputeCaptchaAsync(byte[] image)
 	{
 		return JsonSerializer.Deserialize<BodyIn>(PostAsync("/api/app/compute/captcha", new
@@ -135,20 +119,17 @@ public sealed class WebNexusApi : IDisposable
 		}).GetAwaiter().GetResult()).Body;
 	}
 
-	// Token: 0x06000064 RID: 100 RVA: 0x000039F4 File Offset: 0x00001BF4
 	public async Task<string> GetAppVersionAsync(string appId, string appSecret)
 	{
 		var requestData = new { appId, appSecret };
 		return await PostAsync("/api/app/get/app/version", requestData);
 	}
 
-	// Token: 0x06000065 RID: 101 RVA: 0x00003A48 File Offset: 0x00001C48
 	public byte[] DownloadFile(string url, string pluginId)
 	{
 		return DownloadFileAsync(url, pluginId).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x06000066 RID: 102 RVA: 0x00003A70 File Offset: 0x00001C70
 	// private Task<string> PostAsync<T>(string endpoint, T requestData, Dictionary<string, string>? headers = null)
 	// {
 	// 	WebNexusApi.<PostAsync>d__18<T> <PostAsync>d__ = new WebNexusApi.<PostAsync>d__18<T>();
@@ -218,7 +199,6 @@ public sealed class WebNexusApi : IDisposable
 		}
 	}
 
-	// Token: 0x06000067 RID: 103 RVA: 0x00003ACC File Offset: 0x00001CCC
 	// public async Task<string> GetAsync(string endpoint, Dictionary<string, string>? headers = null)
 	// {
 	// 	string text3;
@@ -312,7 +292,6 @@ public sealed class WebNexusApi : IDisposable
 		}
 	}
 
-	// Token: 0x06000068 RID: 104 RVA: 0x00003B20 File Offset: 0x00001D20
 	// private async Task<byte[]> DownloadFileAsync(string endpoint, string id, Dictionary<string, string>? headers = null)
 	// {
 	// 	var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpoint);
@@ -508,7 +487,6 @@ public sealed class WebNexusApi : IDisposable
 	    }
 	}
 
-	// Token: 0x06000069 RID: 105 RVA: 0x00003B7C File Offset: 0x00001D7C
 	private void Dispose(bool disposing)
 	{
 		var flag = !_disposed;
@@ -522,21 +500,12 @@ public sealed class WebNexusApi : IDisposable
 		}
 	}
 
-	// Token: 0x0600006A RID: 106 RVA: 0x00003BB4 File Offset: 0x00001DB4
 	~WebNexusApi()
 	{
 		Dispose(false);
 	}
-
-	// Token: 0x04000033 RID: 51
 	private const string BaseUrl = "https://api.codexus.today/";
-
-	// Token: 0x04000034 RID: 52
 	private readonly HttpClient _httpClient;
-
-	// Token: 0x04000035 RID: 53
 	private readonly Action<string, int> _progressCallback;
-
-	// Token: 0x04000036 RID: 54
 	private bool _disposed;
 }

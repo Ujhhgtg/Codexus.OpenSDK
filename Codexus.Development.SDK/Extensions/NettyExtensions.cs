@@ -7,8 +7,6 @@ using DotNetty.Buffers;
 using DotNetty.Common.Utilities;
 
 namespace Codexus.Development.SDK.Extensions;
-
-// Token: 0x02000021 RID: 33
 public static class NettyExtensions
 {
 	public static int ReadVarInt(this byte[] buffer)

@@ -13,19 +13,11 @@ using Codexus.Cipher.Utils.Http;
 using Serilog;
 
 namespace Codexus.Cipher.Protocol;
-
-// Token: 0x02000024 RID: 36
 public class MPay : IDisposable
 {
-	// Token: 0x17000025 RID: 37
-	// (get) Token: 0x060000D4 RID: 212 RVA: 0x00005207 File Offset: 0x00003407
 	private string GameId { get; }
-
-	// Token: 0x17000026 RID: 38
-	// (get) Token: 0x060000D5 RID: 213 RVA: 0x0000520F File Offset: 0x0000340F
 	public string GameVersion { get; }
 
-	// Token: 0x060000D6 RID: 214 RVA: 0x00005218 File Offset: 0x00003418
 	public MPay(string gameId, string gameVersion)
 	{
 		GameId = gameId;
@@ -34,7 +26,6 @@ public class MPay : IDisposable
 		_device = CreateOrLoadDeviceAsync(gameId, gameVersion).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000D7 RID: 215 RVA: 0x00005288 File Offset: 0x00003488
 	public void Dispose()
 	{
 		_client.Dispose();
@@ -42,13 +33,11 @@ public class MPay : IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x060000D8 RID: 216 RVA: 0x000052AC File Offset: 0x000034AC
 	public EntityDevice GetDevice()
 	{
 		return _device;
 	}
 
-	// Token: 0x060000D9 RID: 217 RVA: 0x000052C4 File Offset: 0x000034C4
 	public async Task Configure(string appKey, string channel)
 	{
 		var text = new ParameterBuilder().Append("sub_app_key", "").Append("api_ver", "2").Append("gdpr", "0")
@@ -61,7 +50,6 @@ public class MPay : IDisposable
 		httpResponseMessage.EnsureSuccessStatusCode();
 	}
 
-	// Token: 0x060000DA RID: 218 RVA: 0x00005318 File Offset: 0x00003518
 	private static string CreateOrLoadUnique(string gameId)
 	{
 		var text = gameId + "-guid.cds";
@@ -71,7 +59,6 @@ public class MPay : IDisposable
 		return text2;
 	}
 
-	// Token: 0x060000DB RID: 219 RVA: 0x0000535C File Offset: 0x0000355C
 	private static string CreateUnique(string fileName)
 	{
 		var text = Guid.NewGuid().ToString().Replace("-", "");
@@ -79,7 +66,6 @@ public class MPay : IDisposable
 		return text;
 	}
 
-	// Token: 0x060000DC RID: 220 RVA: 0x0000539C File Offset: 0x0000359C
 	private async Task<EntityDevice> CreateOrLoadDeviceAsync(string gameId, string gameVersion)
 	{
 		var text = gameId + "-device.cds";
@@ -98,7 +84,6 @@ public class MPay : IDisposable
 		return entityDevice2;
 	}
 
-	// Token: 0x060000DD RID: 221 RVA: 0x000053F0 File Offset: 0x000035F0
 	private async Task<EntityDevice> CreateDeviceAsync(string gameId, string gameVersion, string fileName)
 	{
 		var httpResponseMessage = await _service.PostAsync("/mpay/games/" + gameId + "/devices", BuildDeviceParams().Append("unique_id", Unique).FormUrlEncode(), "application/x-www-form-urlencoded");
@@ -108,7 +93,6 @@ public class MPay : IDisposable
 		return JsonSerializer.Deserialize<EntityDeviceResponse>(text2).EntityDevice;
 	}
 
-	// Token: 0x060000DE RID: 222 RVA: 0x0000544C File Offset: 0x0000364C
 	public async Task<EntityMPayUserResponse> LoginWithEmailAsync(string email, string password)
 	{
 		var value = JsonSerializer.Serialize(new EntityUsersParameters
@@ -139,7 +123,6 @@ public class MPay : IDisposable
 		throw new Exception("Failed to login with email, response: " + text2);
 	}
 
-	// Token: 0x060000DF RID: 223 RVA: 0x000054A0 File Offset: 0x000036A0
 	public async Task<bool> SendSmsCodeAsync(string phoneNumber)
 	{
 		var httpResponseMessage = await _service.PostAsync("/mpay/api/users/login/mobile/get_sms", BuildBaseParams().Append("device_id", _device.Id).Append("mobile", phoneNumber)
@@ -152,7 +135,6 @@ public class MPay : IDisposable
 		return httpResponseMessage.IsSuccessStatusCode;
 	}
 
-	// Token: 0x060000E0 RID: 224 RVA: 0x000054EC File Offset: 0x000036EC
 	public async Task<EntitySmsTicket> VerifySmsCodeAsync(string phoneNumber, string code)
 	{
 		var httpResponseMessage = await _service.PostAsync("/mpay/api/users/login/mobile/verify_sms", BuildBaseParams().Append("device_id", _device.Id).Append("mobile", phoneNumber)
@@ -173,7 +155,6 @@ public class MPay : IDisposable
 		return entitySmsTicket;
 	}
 
-	// Token: 0x060000E1 RID: 225 RVA: 0x00005540 File Offset: 0x00003740
 	public async Task<EntityMPayUserResponse> FinishSmsCodeAsync(string phoneNumber, string ticket)
 	{
 		var text = phoneNumber.EncodeBase64();
@@ -194,7 +175,6 @@ public class MPay : IDisposable
 		return entityMPayUserResponse;
 	}
 
-	// Token: 0x060000E2 RID: 226 RVA: 0x00005594 File Offset: 0x00003794
 	private ParameterBuilder BuildBaseParams()
 	{
 		var parameterBuilder = new ParameterBuilder().Append("app_channel", "netease").Append("app_mode", "2").Append("app_type", "games")
@@ -210,7 +190,6 @@ public class MPay : IDisposable
 			.Append("gv", GameVersion);
 	}
 
-	// Token: 0x060000E3 RID: 227 RVA: 0x0000567C File Offset: 0x0000387C
 	private ParameterBuilder BuildDeviceParams()
 	{
 		return BuildBaseParams().Append("brand", "Microsoft").Append("device_model", "pc_mode")
@@ -223,13 +202,11 @@ public class MPay : IDisposable
 			.Append("system_version", "10.0.22621");
 	}
 
-	// Token: 0x060000E4 RID: 228 RVA: 0x00005730 File Offset: 0x00003930
 	public static void SaveToFile(string filename, string content)
 	{
 		File.WriteAllText(filename, content);
 	}
 
-	// Token: 0x060000E5 RID: 229 RVA: 0x0000573C File Offset: 0x0000393C
 	public static byte[] LoadFromFile(string filename)
 	{
 		byte[] array;
@@ -254,20 +231,10 @@ public class MPay : IDisposable
 		}
 		return array;
 	}
-
-	// Token: 0x04000061 RID: 97
 	private readonly EntityDevice _device;
-
-	// Token: 0x04000062 RID: 98
 	private readonly HttpWrapper _client = new();
-
-	// Token: 0x04000063 RID: 99
 	private readonly HttpWrapper _service = new("https://service.mkey.163.com");
-
-	// Token: 0x04000064 RID: 100
 	public readonly string Unique;
-
-	// Token: 0x04000065 RID: 101
 	private static readonly JsonSerializerOptions DefaultOptions = new()
 	{
 		Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping

@@ -7,11 +7,9 @@ using System.Text;
 using Codexus.Cipher.Extensions;
 
 namespace Codexus.Cipher.Utils.Cipher;
-
-// Token: 0x0200001C RID: 28
 public static class TokenUtil
 {
-	// Token: 0x0600008D RID: 141 RVA: 0x00003AC0 File Offset: 0x00001CC0
+
 	static TokenUtil()
 	{
 		Aes.Mode = CipherMode.CBC;
@@ -22,13 +20,11 @@ public static class TokenUtil
 		Aes.IV = "afd4c5c5a7c456a1"u8.ToArray();
 	}
 
-	// Token: 0x0600008E RID: 142 RVA: 0x00003B50 File Offset: 0x00001D50
 	public static Dictionary<string, string> ComputeHttpRequestToken(string requestPath, string sendBody, string userId, string userToken)
 	{
 		return ComputeHttpRequestToken(requestPath, Encoding.UTF8.GetBytes(sendBody), userId, userToken);
 	}
 
-	// Token: 0x0600008F RID: 143 RVA: 0x00003B78 File Offset: 0x00001D78
 	private static Dictionary<string, string> ComputeHttpRequestToken(string requestPath, byte[] sendBody, string userId, string userToken)
 	{
 		requestPath = requestPath.StartsWith('/') ? requestPath : "/" + requestPath;
@@ -44,13 +40,14 @@ public static class TokenUtil
 		var bytes = Encoding.UTF8.GetBytes(text);
 		ProcessBinaryBlock(text2, bytes);
 		var text4 = (Convert.ToBase64String(bytes, 0, 12) + "1").Replace('+', 'm').Replace('/', 'o');
-		var dictionary = new Dictionary<string, string>();
-		dictionary["user-id"] = userId;
-		dictionary["user-token"] = text4;
+		var dictionary = new Dictionary<string, string>
+		{
+			["user-id"] = userId,
+			["user-token"] = text4
+		};
 		return dictionary;
 	}
 
-	// Token: 0x06000090 RID: 144 RVA: 0x00003CBC File Offset: 0x00001EBC
 	// private static unsafe void ProcessBinaryBlock(string secretBin, byte[] httpToken)
 	// {
 	// 	for (var i = 0; i < secretBin.Length / 8; i++)
@@ -95,7 +92,6 @@ public static class TokenUtil
 		}
 	}
 
-	// Token: 0x06000091 RID: 145 RVA: 0x00003D4C File Offset: 0x00001F4C
 	private static string HexToBinary(string hexString)
 	{
 		var stringBuilder = new StringBuilder();
@@ -106,7 +102,6 @@ public static class TokenUtil
 		return stringBuilder.ToString();
 	}
 
-	// Token: 0x06000092 RID: 146 RVA: 0x00003DD0 File Offset: 0x00001FD0
 	public static string GenerateEncryptToken(string userToken)
 	{
 		var text = RandomUtil.GetRandomString(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").ToUpper();
@@ -115,10 +110,6 @@ public static class TokenUtil
 		var bytes = Encoding.ASCII.GetBytes(text3);
 		return Convert.ToHexString(Aes.CreateEncryptor().TransformFinalBlock(bytes, 0, bytes.Length)).ToUpper();
 	}
-
-	// Token: 0x04000045 RID: 69
 	private const string TokenSalt = "0eGsBkhl";
-
-	// Token: 0x04000046 RID: 70
 	private static readonly Aes Aes = Aes.Create();
 }

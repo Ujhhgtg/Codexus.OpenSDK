@@ -4,11 +4,9 @@ using System.Numerics;
 using System.Security.Cryptography;
 
 namespace Codexus.Development.SDK.Extensions;
-
-// Token: 0x02000020 RID: 32
 public static class CryptExtensions
 {
-	// Token: 0x060000BA RID: 186 RVA: 0x00005584 File Offset: 0x00003784
+
 	public static string ToSha1(this MemoryStream data)
 	{
 		string text;

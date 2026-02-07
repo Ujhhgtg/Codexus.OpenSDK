@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Codexus.Development.SDK.Utils;
-
-// Token: 0x0200000B RID: 11
 public static class JsonElementExtensions
 {
-	// Token: 0x06000040 RID: 64 RVA: 0x00002DEC File Offset: 0x00000FEC
+
 	extension(JsonElement element)
 	{
 		public object? GetObject()

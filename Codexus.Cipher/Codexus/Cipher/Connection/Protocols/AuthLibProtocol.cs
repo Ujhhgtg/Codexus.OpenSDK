@@ -9,29 +9,24 @@ using Codexus.Development.SDK.Manager;
 using Serilog;
 
 namespace Codexus.Cipher.Connection.Protocols;
-
-// Token: 0x020000AB RID: 171
 public class AuthLibProtocol(IPAddress address, int port, string modList, string version, string accessToken) : IDisposable
 {
-	// Token: 0x06000673 RID: 1651 RVA: 0x0000B369 File Offset: 0x00009569
+
 	// public AuthLibProtocol(IPAddress address, int port, string modList, string version, string accessToken)
 	// {
 	// }
 
-	// Token: 0x06000674 RID: 1652 RVA: 0x0000B3A4 File Offset: 0x000095A4
 	~AuthLibProtocol()
 	{
 		Dispose(false);
 	}
 
-	// Token: 0x06000675 RID: 1653 RVA: 0x0000B3D8 File Offset: 0x000095D8
 	public void Dispose()
 	{
 		Dispose(true);
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x06000676 RID: 1654 RVA: 0x0000B3EC File Offset: 0x000095EC
 	protected virtual void Dispose(bool disposing)
 	{
 		var disposed = _disposed;
@@ -57,7 +52,6 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 		}
 	}
 
-	// Token: 0x06000677 RID: 1655 RVA: 0x0000B484 File Offset: 0x00009684
 	public void Start()
 	{
 		var disposed = _disposed;
@@ -70,7 +64,6 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 		_acceptLoopTask = AcceptLoopAsync(_cts.Token);
 	}
 
-	// Token: 0x06000678 RID: 1656 RVA: 0x0000B4E4 File Offset: 0x000096E4
 	public void Stop()
 	{
 		var flag = !_disposed;
@@ -80,7 +73,6 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 		}
 	}
 
-	// Token: 0x06000679 RID: 1657 RVA: 0x0000B508 File Offset: 0x00009708
 	// 	private Task AcceptLoopAsync(CancellationToken token)
 	// 	{
 	// 		/*
@@ -125,7 +117,6 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 		}
 	}
 
-	// Token: 0x0600067A RID: 1658 RVA: 0x0000B554 File Offset: 0x00009754
 	private static async Task ReadExactAsync(NetworkStream stream, byte[] buffer, int offset, int count, CancellationToken token)
 	{
 		int num;
@@ -140,7 +131,6 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 		}
 	}
 
-	// Token: 0x0600067B RID: 1659 RVA: 0x0000B5B8 File Offset: 0x000097B8
 	// private async Task HandleClientAsync(TcpClient client, CancellationToken token)
 	// {
 	// 	using (client)
@@ -307,22 +297,12 @@ public class AuthLibProtocol(IPAddress address, int port, string modList, string
 	    await ReadExactAsync(stream, buffer, 0, length, token).ConfigureAwait(false);
 	    return encoding.GetString(buffer);
 	}
-
-	// Token: 0x04000319 RID: 793
 	private readonly CancellationTokenSource _cts = new();
-
-	// Token: 0x0400031A RID: 794
 		
 	private TcpListener _listener;
-
-	// Token: 0x0400031B RID: 795
 		
 	private Task _acceptLoopTask;
-
-	// Token: 0x0400031C RID: 796
 	private bool _disposed;
-
-	// Token: 0x0200012D RID: 301
 	// [CompilerGenerated]
 	// private sealed class c__DisplayClass17_0
 	// {

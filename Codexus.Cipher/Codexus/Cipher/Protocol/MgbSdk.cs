@@ -8,23 +8,19 @@ using Codexus.Cipher.Entities.MgbSdk;
 using Codexus.Cipher.Utils.Http;
 
 namespace Codexus.Cipher.Protocol;
-
-// Token: 0x02000023 RID: 35
 public class MgbSdk(string gameId) : IDisposable
 {
-	// Token: 0x060000CF RID: 207 RVA: 0x000050AF File Offset: 0x000032AF
+
 	// public MgbSdk(string gameId)
 	// {
 	// }
 
-	// Token: 0x060000D0 RID: 208 RVA: 0x000050D2 File Offset: 0x000032D2
 	public void Dispose()
 	{
 		_sdk.Dispose();
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x060000D1 RID: 209 RVA: 0x000050E8 File Offset: 0x000032E8
 	public string GenerateSAuth(string deviceId, string userid, string sdkUid, string sessionId, string timestamp, string channel, string platform = "pc")
 	{
 		var text = sessionId.ToUpper();
@@ -47,7 +43,6 @@ public class MgbSdk(string gameId) : IDisposable
 		}, DefaultOptions);
 	}
 
-	// Token: 0x060000D2 RID: 210 RVA: 0x000051A4 File Offset: 0x000033A4
 	public async Task AuthSession(string cookie)
 	{
 		var httpResponseMessage2 = await _sdk.PostAsync("/" + gameId + "/sdk/uni_sauth", cookie);
@@ -64,11 +59,7 @@ public class MgbSdk(string gameId) : IDisposable
 			throw new HttpRequestException(text2 + obj);
 		}
 	}
-
-	// Token: 0x0400005F RID: 95
 	private readonly HttpWrapper _sdk = new("https://mgbsdk.matrix.netease.com");
-
-	// Token: 0x04000060 RID: 96
 	private static readonly JsonSerializerOptions DefaultOptions = new()
 	{
 		Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping

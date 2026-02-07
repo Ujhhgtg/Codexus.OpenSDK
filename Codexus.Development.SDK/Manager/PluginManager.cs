@@ -5,24 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using Codexus.Development.SDK.Plugin;
 using Serilog;
 
 namespace Codexus.Development.SDK.Manager;
-
-// Token: 0x0200001E RID: 30
 public class PluginManager
 {
-	// Token: 0x1700002C RID: 44
-	// (get) Token: 0x060000A5 RID: 165 RVA: 0x0000467A File Offset: 0x0000287A
-	// (set) Token: 0x060000A6 RID: 166 RVA: 0x00004681 File Offset: 0x00002881
 	public static string[] PluginExtensions { get; set; } = [".ug", ".dll", ".UG"];
-
-	// Token: 0x1700002D RID: 45
-	// (get) Token: 0x060000A7 RID: 167 RVA: 0x00004689 File Offset: 0x00002889
 	public static PluginManager Instance
 	{
 		get
@@ -36,7 +27,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000A8 RID: 168 RVA: 0x000046A0 File Offset: 0x000028A0
 	public void EnsureUninstall()
 	{
 		using (_writeFileLock.EnterScope())
@@ -62,7 +52,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000A9 RID: 169 RVA: 0x00004788 File Offset: 0x00002988
 	// public void LoadPlugins(string directory)
 	// {
 	// 	var flag = !Directory.Exists(directory);
@@ -196,13 +185,11 @@ public class PluginManager
 	    InitializePlugins();
 	}
 
-	// Token: 0x060000AA RID: 170 RVA: 0x00004A38 File Offset: 0x00002C38
 	public bool HasPlugin(string id)
 	{
 		return Plugins.ContainsKey(id.ToUpper());
 	}
 
-	// Token: 0x060000AB RID: 171 RVA: 0x00004A5C File Offset: 0x00002C5C
 	public PluginState GetPlugin(string id)
 	{
 		var flag = !Plugins.ContainsKey(id.ToUpper());
@@ -213,7 +200,6 @@ public class PluginManager
 		return Plugins[id.ToUpper()];
 	}
 
-	// Token: 0x060000AC RID: 172 RVA: 0x00004AB0 File Offset: 0x00002CB0
 	public List<string> GetPluginAndDependencyPaths(string pluginId,  Func<string, bool> excludeRule = null)
 	{
 		pluginId = pluginId.ToUpper();
@@ -228,7 +214,6 @@ public class PluginManager
 		return hashSet.ToList<string>();
 	}
 
-	// Token: 0x060000AD RID: 173 RVA: 0x00004B0C File Offset: 0x00002D0C
 	private void CollectDependencyPaths(string pluginId, HashSet<string> pathSet, HashSet<string> visitedPlugins,  Func<string, bool>? excludeRule = null)
 	{
 		if (!(!visitedPlugins.Add(pluginId) || (excludeRule != null && excludeRule(pluginId))))
@@ -253,7 +238,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000AE RID: 174 RVA: 0x00004BC4 File Offset: 0x00002DC4
 	private void CheckDependencies()
 	{
 		foreach (var pluginState in Plugins.Values)
@@ -282,7 +266,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000AF RID: 175 RVA: 0x00004CE8 File Offset: 0x00002EE8
 	private static Version ParseVersion(string version)
 	{
 		Version version2;
@@ -302,7 +285,6 @@ public class PluginManager
 		return version2;
 	}
 
-	// Token: 0x060000B0 RID: 176 RVA: 0x00004D90 File Offset: 0x00002F90
 	// private void InitializePlugins()
 	// {
 	// 	var dictionary = new Dictionary<string, PluginState>();
@@ -478,7 +460,6 @@ public class PluginManager
 	    }
 	}
 
-	// Token: 0x060000B1 RID: 177 RVA: 0x000052A8 File Offset: 0x000034A8
 	// public unsafe void UninstallPlugin(string pluginId)
 	// {
 	// 	var flag = Plugins.TryGetValue(pluginId, out var pluginState);
@@ -504,7 +485,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000B2 RID: 178 RVA: 0x0000530C File Offset: 0x0000350C
 	public void UninstallPluginWithPaths(List<string> paths)
 	{
 		using (_writeFileLock.EnterScope())
@@ -526,7 +506,6 @@ public class PluginManager
 		}
 	}
 
-	// Token: 0x060000B3 RID: 179 RVA: 0x000053C8 File Offset: 0x000035C8
 	public static void RestartGateway()
 	{
 		try
@@ -565,79 +544,33 @@ public class PluginManager
 			Log.Error(ex, "Failed to restart gateway.", []);
 		}
 	}
-
-	// Token: 0x04000049 RID: 73
 	private const string UninstallPluginFile = ".ug_cache";
-
-	// Token: 0x0400004B RID: 75
 	private static PluginManager? _instance;
-
-	// Token: 0x0400004C RID: 76
 	private readonly HashSet<string> _loadedFiles = [];
-
-	// Token: 0x0400004D RID: 77
 	private readonly Lock _writeFileLock = new Lock();
-
-	// Token: 0x0400004E RID: 78
 	public readonly Dictionary<string, PluginState> Plugins = new Dictionary<string, PluginState>();
-
-	// Token: 0x0200004E RID: 78
 	public class PluginState(string id, string name, string description, string version, string author, string[]? dependencies, string path, Assembly? assembly, IPlugin? plugin)
 	{
-		// Token: 0x17000056 RID: 86
-		// (get) Token: 0x0600017A RID: 378 RVA: 0x000087CC File Offset: 0x000069CC
 		public string Id { get; } = id;
-
-		// Token: 0x17000057 RID: 87
-		// (get) Token: 0x0600017B RID: 379 RVA: 0x000087D4 File Offset: 0x000069D4
 		public string Name { get; } = name;
-
-		// Token: 0x17000058 RID: 88
-		// (get) Token: 0x0600017C RID: 380 RVA: 0x000087DC File Offset: 0x000069DC
 		public string Description { get; } = description;
-
-		// Token: 0x17000059 RID: 89
-		// (get) Token: 0x0600017D RID: 381 RVA: 0x000087E4 File Offset: 0x000069E4
 		public string Version { get; } = version;
-
-		// Token: 0x1700005A RID: 90
-		// (get) Token: 0x0600017E RID: 382 RVA: 0x000087EC File Offset: 0x000069EC
 		public string Author { get; } = author;
-
-		// Token: 0x1700005B RID: 91
-		// (get) Token: 0x0600017F RID: 383 RVA: 0x000087F4 File Offset: 0x000069F4
 			
 		public string[]? Dependencies
 		{
 			get;
 		} = dependencies;
-
-		// Token: 0x1700005C RID: 92
-		// (get) Token: 0x06000180 RID: 384 RVA: 0x000087FC File Offset: 0x000069FC
 		public string Path { get; } = path;
-
-		// Token: 0x1700005D RID: 93
-		// (get) Token: 0x06000181 RID: 385 RVA: 0x00008804 File Offset: 0x00006A04
 		public Assembly? Assembly
 		{
 			get;
 		} = assembly;
-
-		// Token: 0x1700005E RID: 94
-		// (get) Token: 0x06000182 RID: 386 RVA: 0x0000880C File Offset: 0x00006A0C
 		public IPlugin? Plugin
 		{
 			get;
 		} = plugin;
-
-		// Token: 0x1700005F RID: 95
-		// (get) Token: 0x06000183 RID: 387 RVA: 0x00008814 File Offset: 0x00006A14
-		// (set) Token: 0x06000184 RID: 388 RVA: 0x0000881C File Offset: 0x00006A1C
 		public string Status { get; set; } = "Online";
-
-		// Token: 0x17000060 RID: 96
-		// (get) Token: 0x06000185 RID: 389 RVA: 0x00008825 File Offset: 0x00006A25
-		// (set) Token: 0x06000186 RID: 390 RVA: 0x0000882D File Offset: 0x00006A2D
 		public bool IsInitialized { get; set; }
 	}
 }

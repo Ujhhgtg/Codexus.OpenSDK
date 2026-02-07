@@ -9,22 +9,15 @@ using DotNetty.Transport.Channels;
 using ICSharpCode.SharpZipLib.Zip.Compression;
 
 namespace Codexus.Development.SDK.Analysis;
-
-// Token: 0x02000037 RID: 55
 public class NettyCompressionDecoder : ByteToMessageDecoder
 {
-	// Token: 0x17000054 RID: 84
-	// (get) Token: 0x06000132 RID: 306 RVA: 0x000066CB File Offset: 0x000048CB
-	// (set) Token: 0x06000133 RID: 307 RVA: 0x000066D3 File Offset: 0x000048D3
 	public int Threshold { get; set; }
 
-	// Token: 0x06000134 RID: 308 RVA: 0x000066DC File Offset: 0x000048DC
 	public NettyCompressionDecoder(int threshold)
 	{
 		Threshold = threshold;
 	}
 
-	// Token: 0x06000135 RID: 309 RVA: 0x00006704 File Offset: 0x00004904
 	protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List<object> output)
 	{
 		var flag = input.ReadableBytes == 0;
@@ -93,13 +86,7 @@ public class NettyCompressionDecoder : ByteToMessageDecoder
 			}
 		}
 	}
-
-	// Token: 0x04000090 RID: 144
 	private const int InitialBufferSize = 4096;
-
-	// Token: 0x04000091 RID: 145
 	private readonly ArrayPool<byte> _arrayPool = ArrayPool<byte>.Shared;
-
-	// Token: 0x04000092 RID: 146
 	private readonly Inflater _inflater = new Inflater();
 }

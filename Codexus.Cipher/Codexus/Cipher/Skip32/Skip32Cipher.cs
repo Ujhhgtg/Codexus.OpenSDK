@@ -4,11 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Codexus.Cipher.Skip32;
-
-// Token: 0x0200001E RID: 30
 public class Skip32Cipher
 {
-	// Token: 0x0600009D RID: 157 RVA: 0x000042E8 File Offset: 0x000024E8
+
 	public Skip32Cipher(byte[] key)
 	{
 		var flag = key.Length != 10;
@@ -24,7 +22,6 @@ public class Skip32Cipher
 		_key = key;
 	}
 
-	// Token: 0x0600009E RID: 158 RVA: 0x00004354 File Offset: 0x00002554
 	private static int G(byte[] key, int k, int w)
 	{
 		var num = w >> 8;
@@ -36,7 +33,6 @@ public class Skip32Cipher
 		return (num5 << 8) + num6;
 	}
 
-	// Token: 0x0600009F RID: 159 RVA: 0x000043E8 File Offset: 0x000025E8
 	private void Skip32(int[] buf, bool encrypt)
 	{
 		int num;
@@ -66,13 +62,11 @@ public class Skip32Cipher
 		buf[3] = num3 & 255;
 	}
 
-	// Token: 0x060000A0 RID: 160 RVA: 0x00004488 File Offset: 0x00002688
 	public uint Encrypt(uint value)
 	{
 		return (uint)Encrypt((int)value);
 	}
 
-	// Token: 0x060000A1 RID: 161 RVA: 0x000044A4 File Offset: 0x000026A4
 	public int Encrypt(int value)
 	{
 		var array = new[]
@@ -86,13 +80,11 @@ public class Skip32Cipher
 		return (array[0] << 24) | (array[1] << 16) | (array[2] << 8) | array[3];
 	}
 
-	// Token: 0x060000A2 RID: 162 RVA: 0x00004510 File Offset: 0x00002710
 	public uint Decrypt(uint value)
 	{
 		return (uint)Decrypt((int)value);
 	}
 
-	// Token: 0x060000A3 RID: 163 RVA: 0x0000452C File Offset: 0x0000272C
 	public int Decrypt(int value)
 	{
 		var array = new[]
@@ -106,7 +98,6 @@ public class Skip32Cipher
 		return (array[0] << 24) | (array[1] << 16) | (array[2] << 8) | array[3];
 	}
 
-	// Token: 0x060000A4 RID: 164 RVA: 0x00004598 File Offset: 0x00002798
 	public string GenerateRoleUuid(string roleName, uint userId)
 	{
 		var array = MD5.HashData(Encoding.UTF8.GetBytes(roleName));
@@ -117,7 +108,6 @@ public class Skip32Cipher
 		return Convert.ToHexStringLower(array);
 	}
 
-	// Token: 0x060000A5 RID: 165 RVA: 0x000045FC File Offset: 0x000027FC
 	public uint ComputeUserIdFromUuid(string uuid)
 	{
 		uuid = uuid.Replace("-", "");
@@ -134,11 +124,7 @@ public class Skip32Cipher
 		}
 		return num;
 	}
-
-	// Token: 0x04000048 RID: 72
 	private const int KeySize = 10;
-
-	// Token: 0x04000049 RID: 73
 	private static readonly byte[] FTable =
 	[
 		163, 215, 9, 131, 248, 72, 246, 244, 179, 33,
@@ -168,7 +154,5 @@ public class Skip32Cipher
 		94, 108, 169, 19, 87, 37, 181, 227, 189, 168,
 		58, 1, 5, 89, 42, 70
 	];
-
-	// Token: 0x0400004A RID: 74
 	private readonly byte[] _key;
 }

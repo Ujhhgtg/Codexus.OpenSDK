@@ -16,11 +16,9 @@ using Serilog;
 using EntityAuthenticationOtp = Codexus.Cipher.Entities.G79.EntityAuthenticationOtp;
 
 namespace Codexus.Cipher.Protocol;
-
-// Token: 0x02000020 RID: 32
 public class G79 : IDisposable
 {
-	// Token: 0x060000B2 RID: 178 RVA: 0x000049A8 File Offset: 0x00002BA8
+
 	public void Dispose()
 	{
 		_core.Dispose();
@@ -28,13 +26,11 @@ public class G79 : IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x060000B3 RID: 179 RVA: 0x000049CC File Offset: 0x00002BCC
 	public EntityAuthenticationOtp AuthenticationOtp(string cookieRequest, string nexusToken)
 	{
 		return AuthenticationOtpAsync(cookieRequest, nexusToken).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000B4 RID: 180 RVA: 0x000049F4 File Offset: 0x00002BF4
 	private static string ExtractCookie(string cookie)
 	{
 		string text;
@@ -49,7 +45,6 @@ public class G79 : IDisposable
 		return text;
 	}
 
-	// Token: 0x060000B5 RID: 181 RVA: 0x00004A2C File Offset: 0x00002C2C
 	private async Task<EntityAuthenticationOtp> AuthenticationOtpAsync(string cookieRequest, string nexusToken)
 	{
 		var text = ExtractCookie(cookieRequest);
@@ -90,13 +85,11 @@ public class G79 : IDisposable
 		return entityAuthenticationOtp;
 	}
 
-	// Token: 0x060000B6 RID: 182 RVA: 0x00004A80 File Offset: 0x00002C80
 	public Entity<EntityUserDetails> GetUserDetail(string userId, string userToken)
 	{
 		return GetUserDetailAsync(userId, userToken).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000B7 RID: 183 RVA: 0x00004AA8 File Offset: 0x00002CA8
 	private async Task<Entity<EntityUserDetails>> GetUserDetailAsync(string userId, string userToken)
 	{
 		var body = JsonSerializer.Serialize(new EntityQueryUserDetail
@@ -112,13 +105,11 @@ public class G79 : IDisposable
 		return entity ?? throw new Exception("Failed to deserialize: " + text2);
 	}
 
-	// Token: 0x060000B8 RID: 184 RVA: 0x00004AFC File Offset: 0x00002CFC
 	public Entities.G79.Entities<EntityNetGame> GetAvailableNetGames(string userId, string userToken)
 	{
 		return GetAvailableNetGamesAsync(userId, userToken).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000B9 RID: 185 RVA: 0x00004B24 File Offset: 0x00002D24
 	private async Task<Entities.G79.Entities<EntityNetGame>> GetAvailableNetGamesAsync(string userId, string userToken)
 	{
 		var body = JsonSerializer.Serialize(new EntityNetGameRequest
@@ -134,13 +125,11 @@ public class G79 : IDisposable
 		return JsonSerializer.Deserialize<Entities.G79.Entities<EntityNetGame>>(text);
 	}
 
-	// Token: 0x060000BA RID: 186 RVA: 0x00004B78 File Offset: 0x00002D78
 	public Entity<EntityNetGameServerAddress> GetNetGameServerAddress(string userId, string userToken, string gameId)
 	{
 		return GetNetGameServerAddressAsync(userId, userToken, gameId).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000BB RID: 187 RVA: 0x00004BA0 File Offset: 0x00002DA0
 	private async Task<Entity<EntityNetGameServerAddress>> GetNetGameServerAddressAsync(string userId, string userToken, string gameId)
 	{
 		var body = JsonSerializer.Serialize(new EntityNetGameServerAddressRequest
@@ -155,13 +144,11 @@ public class G79 : IDisposable
 		return JsonSerializer.Deserialize<Entity<EntityNetGameServerAddress>>(text);
 	}
 
-	// Token: 0x060000BC RID: 188 RVA: 0x00004BFC File Offset: 0x00002DFC
 	public string GetAvailableRentalGames(string userId, string userToken, int offset)
 	{
 		return GetAvailableRentalGamesAsync(userId, userToken, offset).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000BD RID: 189 RVA: 0x00004C24 File Offset: 0x00002E24
 	private async Task<string> GetAvailableRentalGamesAsync(string userId, string userToken, int offset)
 	{
 		var body = JsonSerializer.Serialize(new EntityRentalGameRequest
@@ -178,13 +165,11 @@ public class G79 : IDisposable
 		return text;
 	}
 
-	// Token: 0x060000BE RID: 190 RVA: 0x00004C80 File Offset: 0x00002E80
 	public Entity<EntityRentalGameServerAddress> GetRentalGameServerAddress(string userId, string userToken, string gameId, string password = "")
 	{
 		return GetRentalGameServerAddressAsync(userId, userToken, gameId, password).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000BF RID: 191 RVA: 0x00004CAC File Offset: 0x00002EAC
 	private async Task<Entity<EntityRentalGameServerAddress>> GetRentalGameServerAddressAsync(string userId, string userToken, string gameId, string password = "")
 	{
 		var body = JsonSerializer.Serialize(new EntityRentalGameServerAddressRequest
@@ -200,13 +185,11 @@ public class G79 : IDisposable
 		return JsonSerializer.Deserialize<Entity<EntityRentalGameServerAddress>>(text);
 	}
 
-	// Token: 0x060000C0 RID: 192 RVA: 0x00004D10 File Offset: 0x00002F10
 	public Entity<EntitySetNickName> SetNickName(string userId, string userToken, string nickName)
 	{
 		return SetNickNameAsync(userId, userToken, nickName).GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000C1 RID: 193 RVA: 0x00004D38 File Offset: 0x00002F38
 	private async Task<Entity<EntitySetNickName>> SetNickNameAsync(string userId, string userToken, string nickName)
 	{
 		var body = JsonSerializer.Serialize(new EntitySetNickNameRequest
@@ -222,7 +205,6 @@ public class G79 : IDisposable
 		return JsonSerializer.Deserialize<Entity<EntitySetNickName>>(text);
 	}
 
-	// Token: 0x060000C2 RID: 194 RVA: 0x00004D94 File Offset: 0x00002F94
 	public G79()
 	{
 		const string text = "https://g79mclobt.minecraft.cn";
@@ -240,13 +222,7 @@ public class G79 : IDisposable
 		}, new Version(2, 0));
 		_mgbSdk = new MgbSdk("x19");
 	}
-
-	// Token: 0x04000056 RID: 86
 	private readonly HttpWrapper _client;
-
-	// Token: 0x04000057 RID: 87
 	private readonly HttpWrapper _core;
-
-	// Token: 0x04000058 RID: 88
 	private readonly MgbSdk _mgbSdk;
 }

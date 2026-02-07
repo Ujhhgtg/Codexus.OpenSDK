@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 using Serilog;
 
 namespace Codexus.Development.SDK.Utils;
-
-// Token: 0x02000010 RID: 16
 public class UdpBroadcaster : IDisposable
 {
-	// Token: 0x06000051 RID: 81 RVA: 0x00003324 File Offset: 0x00001524
+
 	public UdpBroadcaster(string multicastAddress, int port, int targetPort, string serverIp, string roleName, bool is189Protocol)
 	{
 		_udpClient = new UdpClient();
@@ -34,7 +32,6 @@ public class UdpBroadcaster : IDisposable
 		_roleName = roleName;
 	}
 
-	// Token: 0x06000052 RID: 82 RVA: 0x000033D8 File Offset: 0x000015D8
 	public void Dispose()
 	{
 		var cts = _cts;
@@ -44,7 +41,6 @@ public class UdpBroadcaster : IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x06000053 RID: 83 RVA: 0x00003414 File Offset: 0x00001614
 	public async Task StartBroadcastingAsync()
 	{
 		_cts = new CancellationTokenSource();
@@ -69,7 +65,6 @@ public class UdpBroadcaster : IDisposable
 		}
 	}
 
-	// Token: 0x06000054 RID: 84 RVA: 0x00003458 File Offset: 0x00001658
 	private async Task SendMessageAsync()
 	{
 		// Internal flag/state used for retry logic
@@ -103,7 +98,6 @@ public class UdpBroadcaster : IDisposable
 		}
 	}
 
-	// Token: 0x06000055 RID: 85 RVA: 0x0000349C File Offset: 0x0000169C
 	private string BuildMessage()
 	{
 		string text;
@@ -134,39 +128,23 @@ public class UdpBroadcaster : IDisposable
 		return text;
 	}
 
-	// Token: 0x06000056 RID: 86 RVA: 0x0000359A File Offset: 0x0000179A
 	public void Stop()
 	{
 		var cts = _cts;
 		cts?.Cancel();
 	}
 
-	// Token: 0x06000057 RID: 87 RVA: 0x000035B0 File Offset: 0x000017B0
 	private static bool IsMulticastAddress(IPAddress address)
 	{
 		var addressBytes = address.GetAddressBytes();
 		var flag = address.AddressFamily == AddressFamily.InterNetwork && addressBytes[0] >= 224;
 		return flag && addressBytes[0] <= 239;
 	}
-
-	// Token: 0x0400002C RID: 44
 	private readonly bool _is189Protocol;
-
-	// Token: 0x0400002D RID: 45
 	private readonly string _roleName;
-
-	// Token: 0x0400002E RID: 46
 	private readonly string _serverIp;
-
-	// Token: 0x0400002F RID: 47
 	private readonly int _serverPort;
-
-	// Token: 0x04000030 RID: 48
 	private readonly IPEndPoint _targetEndPoint;
-
-	// Token: 0x04000031 RID: 49
 	private readonly UdpClient? _udpClient;
-
-	// Token: 0x04000032 RID: 50
 	private CancellationTokenSource? _cts;
 }

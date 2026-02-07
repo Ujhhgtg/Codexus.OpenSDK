@@ -4,12 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Codexus.Cipher.Utils.Cipher;
-
-// Token: 0x0200001A RID: 26
 public static class HttpUtil
 {
-	// Token: 0x17000021 RID: 33
-	// (get) Token: 0x06000086 RID: 134 RVA: 0x000037F0 File Offset: 0x000019F0
 	private static Aes Aes
 	{
 		get
@@ -19,14 +15,10 @@ public static class HttpUtil
 			return aes;
 		}
 	}
-
-	// Token: 0x17000022 RID: 34
-	// (get) Token: 0x06000087 RID: 135 RVA: 0x00003811 File Offset: 0x00001A11
 	private static byte[][] HttpKeys =>
 		(from skey in "MK6mipwmOUedplb6,OtEylfId6dyhrfdn,VNbhn5mvUaQaeOo9,bIEoQGQYjKd02U0J,fuaJrPwaH2cfXXLP,LEkdyiroouKQ4XN1,jM1h27H4UROu427W,DhReQada7gZybTDk,ZGXfpSTYUvcdKqdY,AZwKf7MWZrJpGR5W,amuvbcHw38TcSyPU,SI4QotspbjhyFdT0,VP4dhjKnDGlSJtbB,UXDZx4KhZywQ2tcn,NIK73ZNvNqzva4kd,WeiW7qU766Q1YQZI".Split(',')
 			select Encoding.GetEncoding("us-ascii").GetBytes(skey)).ToArray();
 
-	// Token: 0x06000088 RID: 136 RVA: 0x0000384C File Offset: 0x00001A4C
 	public static byte[] HttpEncrypt(byte[] bodyIn)
 	{
 		var array = new byte[(int)Math.Ceiling((bodyIn.Length + 16) / 16.0) * 16];
@@ -45,7 +37,6 @@ public static class HttpUtil
 		return array3;
 	}
 
-	// Token: 0x06000089 RID: 137 RVA: 0x00003938 File Offset: 0x00001B38
 	public static byte[] HttpDecrypt(byte[] body)
 	{
 		var flag = body.Length < 18;
@@ -72,7 +63,5 @@ public static class HttpUtil
 		}
 		return array;
 	}
-
-	// Token: 0x04000044 RID: 68
 	private const string SKeys = "MK6mipwmOUedplb6,OtEylfId6dyhrfdn,VNbhn5mvUaQaeOo9,bIEoQGQYjKd02U0J,fuaJrPwaH2cfXXLP,LEkdyiroouKQ4XN1,jM1h27H4UROu427W,DhReQada7gZybTDk,ZGXfpSTYUvcdKqdY,AZwKf7MWZrJpGR5W,amuvbcHw38TcSyPU,SI4QotspbjhyFdT0,VP4dhjKnDGlSJtbB,UXDZx4KhZywQ2tcn,NIK73ZNvNqzva4kd,WeiW7qU766Q1YQZI";
 }

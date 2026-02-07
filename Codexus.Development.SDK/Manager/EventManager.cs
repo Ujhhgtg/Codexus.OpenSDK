@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Codexus.Development.SDK.Manager;
-
-// Token: 0x0200001A RID: 26
 public class EventManager
 {
-	// Token: 0x17000029 RID: 41
-	// (get) Token: 0x0600008E RID: 142 RVA: 0x00003DC0 File Offset: 0x00001FC0
 	public static EventManager Instance
 	{
 		get
@@ -23,7 +18,6 @@ public class EventManager
 		}
 	}
 
-	// Token: 0x0600008F RID: 143 RVA: 0x00003DD8 File Offset: 0x00001FD8
 	// public void RegisterHandler<T>(string channel, EventHandler<T> handler, int priority = 0) where T : IEventArgs
 	// {
 	// 	ArgumentNullException.ThrowIfNull(handler);
@@ -83,7 +77,6 @@ public class EventManager
 		handlers.Add(handler);
 	}
 
-	// Token: 0x06000090 RID: 144 RVA: 0x00003EC0 File Offset: 0x000020C0
 	// public bool UnregisterHandler<T>(string channel,  EventHandler<T>? handler) where T : IEventArgs
 	// {
 	// 	var flag = string.IsNullOrEmpty(channel) || handler == null || !_eventHandlers.TryGetValue(typeof(T), out var dictionary) || !dictionary.TryGetValue(channel, out var sortedDictionary);
@@ -159,13 +152,11 @@ public class EventManager
 		return false;
 	}
 
-	// Token: 0x06000091 RID: 145 RVA: 0x00003FE0 File Offset: 0x000021E0
 	public T TriggerEvent<T>(string channel, T args) where T : IEventArgs
 	{
 		return TriggerEvent([channel], args);
 	}
 
-	// Token: 0x06000092 RID: 146 RVA: 0x00004004 File Offset: 0x00002204
 	// public T TriggerEvent<T>(string[] channels, T? args) where T : IEventArgs
 	// {
 	// 	var flag = args == null;
@@ -216,7 +207,6 @@ public class EventManager
 		return args;
 	}
 
-	// Token: 0x06000093 RID: 147 RVA: 0x00004134 File Offset: 0x00002334
 	// public bool HasHandlersForEvent<T>(string channel) where T : IEventArgs
 	// {
 	// 	var flag = string.IsNullOrEmpty(channel);
@@ -241,19 +231,16 @@ public class EventManager
 		       priorityDict.Values.Any(list => list.Count > 0);
 	}
 
-	// Token: 0x06000094 RID: 148 RVA: 0x000041AF File Offset: 0x000023AF
 	public void ClearAllHandlers()
 	{
 		_eventHandlers.Clear();
 	}
 
-	// Token: 0x06000095 RID: 149 RVA: 0x000041BE File Offset: 0x000023BE
 	public void ClearHandlersForEventType<T>() where T : IEventArgs
 	{
 		_eventHandlers.Remove(typeof(T));
 	}
 
-	// Token: 0x06000096 RID: 150 RVA: 0x000041D8 File Offset: 0x000023D8
 	public void ClearHandlersForEvent<T>(string channel) where T : IEventArgs
 	{
 		var flag = !string.IsNullOrEmpty(channel) && _eventHandlers.TryGetValue(typeof(T), out var dictionary) && dictionary.Remove(channel) && dictionary.Count == 0;
@@ -262,10 +249,6 @@ public class EventManager
 			_eventHandlers.Remove(typeof(T));
 		}
 	}
-
-	// Token: 0x0400003F RID: 63
 	private static EventManager? _instance;
-
-	// Token: 0x04000040 RID: 64
 	private readonly Dictionary<Type, Dictionary<string, SortedDictionary<int, List<Delegate>>>> _eventHandlers = new Dictionary<Type, Dictionary<string, SortedDictionary<int, List<Delegate>>>>();
 }

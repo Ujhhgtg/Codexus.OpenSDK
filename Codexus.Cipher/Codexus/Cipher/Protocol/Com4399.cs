@@ -14,17 +14,14 @@ using Codexus.Development.SDK.Utils;
 using Serilog;
 
 namespace Codexus.Cipher.Protocol;
-
-// Token: 0x0200001F RID: 31
 public class Com4399
 {
-	// Token: 0x060000A7 RID: 167 RVA: 0x00004668 File Offset: 0x00002868
+
 	public Com4399()
 	{
 		CreateOrLoadDeviceAsync().GetAwaiter().GetResult();
 	}
 
-	// Token: 0x060000A8 RID: 168 RVA: 0x0000471C File Offset: 0x0000291C
 	// private async Task CreateOrLoadDeviceAsync()
 	// {
 	// 	var array = MPay.LoadFromFile("4399com.cds");
@@ -69,13 +66,11 @@ public class Com4399
 		_state              = device.DeviceState;
 	}
 
-	// Token: 0x060000A9 RID: 169 RVA: 0x00004760 File Offset: 0x00002960
 	private static Entity4399Device LoadDevice(byte[] data)
 	{
 		return JsonSerializer.Deserialize<Entity4399Device>(data);
 	}
 
-	// Token: 0x060000AA RID: 170 RVA: 0x00004780 File Offset: 0x00002980
 	private async Task<Entity4399Device> CreateDeviceAsync()
 	{
 		_deviceIdentifier = GenerateIdentifier();
@@ -98,7 +93,6 @@ public class Com4399
 		return entity4399Device2;
 	}
 
-	// Token: 0x060000AB RID: 171 RVA: 0x000047C4 File Offset: 0x000029C4
 	private async Task<string> OAuthDevice()
 	{
 		var body = new ParameterBuilder().Append("usernames", "").Append("top_bar", "1").Append("state", "")
@@ -116,7 +110,6 @@ public class Com4399
 		return entity4399OAuthResponse == null ? throw new Exception("Failed to deserialize: " + httpResponseMessage.Content.ReadAsStringAsync().Result) : new ParameterBuilder(entity4399OAuthResponse.Result.LoginUrl).Get("state");
 	}
 
-	// Token: 0x060000AC RID: 172 RVA: 0x00004808 File Offset: 0x00002A08
 	public async Task<string> LoginAndAuthorize(string username, string password,  string captcha = null,  string captchaId = null, int retry = 0)
 	{
 		var flag = retry > 5;
@@ -216,7 +209,6 @@ public class Com4399
 		return text6;
 	}
 
-	// Token: 0x060000AD RID: 173 RVA: 0x00004874 File Offset: 0x00002A74
 	private async Task<string> HandleCaptchaWithHtml(string username, string password, string html, int retry)
 	{
 		var match = CaptchaRegex().Match(html);
@@ -237,7 +229,6 @@ public class Com4399
 		return await LoginAndAuthorize(username, password, captcha, matchedCaptchaId, retry + 1);
 	}
 
-	// Token: 0x060000AE RID: 174 RVA: 0x000048D8 File Offset: 0x00002AD8
 	private static string GenerateIdentifier(DateTime? dateTime = null,  string additionalData = null)
 	{
 		var text = (dateTime ?? DateTime.Now).ToString("yyyyMMddHHmm");
@@ -245,7 +236,6 @@ public class Com4399
 		return text + text2;
 	}
 
-	// Token: 0x060000AF RID: 175 RVA: 0x00004924 File Offset: 0x00002B24
 	private static string GenerateHash50(string data = null)
 	{
 		if (string.IsNullOrEmpty(data))
@@ -254,46 +244,22 @@ public class Com4399
 		}
 		return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(data))).Substring(0, 50);
 	}
-
-	// Token: 0x060000B0 RID: 176
 	private static extern Regex CaptchaRegex();
-
-	// Token: 0x0400004B RID: 75
 	private const string Com4399File = "4399com.cds";
-
-	// Token: 0x0400004C RID: 76
 	private static readonly JsonSerializerOptions DefaultOptions = new()
 	{
 		Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
 	};
-
-	// Token: 0x0400004D RID: 77
 	private readonly HttpWrapper _4399Api = new("https://m.4399api.com");
-
-	// Token: 0x0400004E RID: 78
 	private readonly Lock _lock = new();
-
-	// Token: 0x0400004F RID: 79
 	private readonly HttpWrapper _login = new("https://ptlogin.4399.com", null, new HttpClientHandler
 	{
 		AllowAutoRedirect = false
 	});
-
-	// Token: 0x04000050 RID: 80
 	private readonly MgbSdk _mgbSdk = new("x19");
-
-	// Token: 0x04000051 RID: 81
 	private readonly WebNexusApi _nexus = new("YXBwSWQ9Q29kZXh1cy5HYXRld2F5LmFwcFNlY3JldD1hN0s5bTJYcUw4YkM0d1ox");
-
-	// Token: 0x04000052 RID: 82
 	private string _deviceIdentifier = string.Empty;
-
-	// Token: 0x04000053 RID: 83
 	private string _deviceIdentifierSm = string.Empty;
-
-	// Token: 0x04000054 RID: 84
 	private string _state = string.Empty;
-
-	// Token: 0x04000055 RID: 85
 	private string _udid = string.Empty;
 }

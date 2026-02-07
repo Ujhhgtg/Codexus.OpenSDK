@@ -7,11 +7,9 @@ using DotNetty.Transport.Channels;
 using Serilog;
 
 namespace Codexus.Development.SDK.Analysis;
-
-// Token: 0x02000034 RID: 52
 public class MessageDeserializer21Bit : ByteToMessageDecoder
 {
-	// Token: 0x0600012C RID: 300 RVA: 0x00006540 File Offset: 0x00004740
+
 	protected override void Decode(IChannelHandlerContext context, IByteBuffer message, List<object> output)
 	{
 		message.MarkReaderIndex();

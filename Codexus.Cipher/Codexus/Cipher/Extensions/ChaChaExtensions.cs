@@ -3,11 +3,9 @@ using System.IO.Hashing;
 using Codexus.Cipher.Connection.ChaCha;
 
 namespace Codexus.Cipher.Extensions;
-
-// Token: 0x02000028 RID: 40
 public static class ChaChaExtensions
 {
-	// Token: 0x06000131 RID: 305 RVA: 0x00006EB0 File Offset: 0x000050B0
+
 	public static byte[] PackMessage(this ChaChaOfSalsa cipher, byte type, byte[] data)
 	{
 		var array = new byte[data.Length + 10];
@@ -22,7 +20,6 @@ public static class ChaChaExtensions
 		return array;
 	}
 
-	// Token: 0x06000132 RID: 306 RVA: 0x00006F3C File Offset: 0x0000513C
 	public static ValueTuple<byte, byte[]> UnpackMessage(this ChaChaOfSalsa cipher, byte[] data)
 	{
 		cipher.ProcessBytes(data, 0, data.Length, data, 0);

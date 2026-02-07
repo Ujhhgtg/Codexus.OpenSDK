@@ -4,11 +4,9 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Codexus.Cipher.Extensions;
-
-// Token: 0x0200002A RID: 42
 public static class StreamExtensions
 {
-	// Token: 0x06000139 RID: 313 RVA: 0x00007128 File Offset: 0x00005328
+
 	public static async Task<MemoryStream> ReadSteamWithInt16Async(this NetworkStream stream)
 	{
 		var lengthBytes = new byte[2];

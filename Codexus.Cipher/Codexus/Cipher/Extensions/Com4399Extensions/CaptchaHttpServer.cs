@@ -9,11 +9,9 @@ using System.Threading.Tasks;
 using Serilog;
 
 namespace Codexus.Cipher.Extensions.Com4399Extensions;
-
-// Token: 0x0200002E RID: 46
 public class CaptchaHttpServer
 {
-	// Token: 0x06000159 RID: 345 RVA: 0x000075C0 File Offset: 0x000057C0
+
 	public CaptchaHttpServer(int port)
 	{
 		Port = port;
@@ -26,7 +24,6 @@ public class CaptchaHttpServer
 		_httpListener.Prefixes.Add(text);
 	}
 
-	// Token: 0x0600015A RID: 346 RVA: 0x00007630 File Offset: 0x00005830
 	// 	public Task StartAsync()
 	// 	{
 	// 		var isRunning = _isRunning;
@@ -98,8 +95,7 @@ public class CaptchaHttpServer
 
 		return Task.CompletedTask;
 	}
-	
-	// Token: 0x0600015B RID: 347 RVA: 0x00007680 File Offset: 0x00005880
+
 	public void Stop()
 	{
 		var isRunning = _isRunning;
@@ -110,7 +106,6 @@ public class CaptchaHttpServer
 		}
 	}
 
-	// Token: 0x0600015C RID: 348 RVA: 0x000076B0 File Offset: 0x000058B0
 	private void HandleHttpRequest(HttpListenerContext context)
 	{
 		try
@@ -186,7 +181,6 @@ public class CaptchaHttpServer
 		}
 	}
 
-	// Token: 0x0600015D RID: 349 RVA: 0x00007888 File Offset: 0x00005A88
 	private static void HandleIndexRequest(HttpListenerResponse response)
 	{
 		var text = CaptchaHandler.CurrentCaptchaType == "jigsaw" ? CaptchaResources.JigsawCaptchaHtml : CaptchaResources.ClickCaptchaHtml;
@@ -194,7 +188,6 @@ public class CaptchaHttpServer
 		WriteStringToResponse(response, text);
 	}
 
-	// Token: 0x0600015E RID: 350 RVA: 0x000078C8 File Offset: 0x00005AC8
 	private static void HandleImageJsonRequest(HttpListenerResponse response)
 	{
 		response.ContentType = "application/json";
@@ -217,7 +210,6 @@ public class CaptchaHttpServer
 		WriteStringToResponse(response, JsonSerializer.Serialize(dictionary4));
 	}
 
-	// Token: 0x0600015F RID: 351 RVA: 0x00007970 File Offset: 0x00005B70
 	private void HandleResolveRequest(HttpListenerRequest request, HttpListenerResponse response)
 	{
 		response.ContentType = "application/json";
@@ -231,20 +223,13 @@ public class CaptchaHttpServer
 		});
 	}
 
-	// Token: 0x06000160 RID: 352 RVA: 0x00007A38 File Offset: 0x00005C38
 	private static void WriteStringToResponse(HttpListenerResponse response, string content)
 	{
 		var bytes = Encoding.UTF8.GetBytes(content);
 		response.ContentLength64 = bytes.Length;
 		response.OutputStream.Write(bytes, 0, bytes.Length);
 	}
-
-	// Token: 0x0400007F RID: 127
 	private readonly HttpListener _httpListener;
-
-	// Token: 0x04000080 RID: 128
 	private bool _isRunning;
-
-	// Token: 0x04000081 RID: 129
 	public readonly int Port;
 }

@@ -3,17 +3,13 @@ using System.Linq;
 using Codexus.Cipher.Entities.WPFLauncher.NetGame;
 
 namespace Codexus.Cipher.Utils;
-
-// Token: 0x02000010 RID: 16
 public class GameVersionConverter
 {
-	// Token: 0x06000064 RID: 100 RVA: 0x00002E18 File Offset: 0x00001018
+
 	public static EnumGameVersion Convert(int versionId)
 	{
 		return VersionMap.GetValueOrDefault(versionId.ToString(), EnumGameVersion.NONE);
 	}
-
-	// Token: 0x06000065 RID: 101
 	public static int Convert(EnumGameVersion version)
 	{
 		var entry = VersionMap.FirstOrDefault(pair => pair.Value == version);
@@ -28,8 +24,6 @@ public class GameVersionConverter
 		}
 		return -1;
 	}
-
-	// Token: 0x0400002B RID: 43
 	private static readonly Dictionary<string, EnumGameVersion> VersionMap = new()
 	{
 		{

@@ -2,11 +2,9 @@
 using System.Text;
 
 namespace Codexus.Cipher.Utils;
-
-// Token: 0x02000013 RID: 19
 public class StringGenerator
 {
-	// Token: 0x0600006B RID: 107 RVA: 0x00003158 File Offset: 0x00001358
+
 	public static string GenerateHexString(int length)
 	{
 		var array = new byte[length];
@@ -14,7 +12,6 @@ public class StringGenerator
 		return Convert.ToHexString(array);
 	}
 
-	// Token: 0x0600006C RID: 108 RVA: 0x00003184 File Offset: 0x00001384
 	public static string GenerateRandomString(int length, bool includeNumbers = true, bool includeUppercase = true, bool includeLowercase = true)
 	{
 		var flag = length <= 0;
@@ -49,7 +46,6 @@ public class StringGenerator
 		return stringBuilder2.ToString();
 	}
 
-	// Token: 0x0600006D RID: 109 RVA: 0x00003264 File Offset: 0x00001464
 	// public static unsafe string GenerateRandomMacAddress(string separator = ":", bool uppercase = true)
 	// {
 	// 	var array = new byte[6];
@@ -84,7 +80,5 @@ public class StringGenerator
 
 		return string.Join(separator, hexParts);
 	}
-
-	// Token: 0x0400002C RID: 44
 	private static readonly Random Random = new();
 }

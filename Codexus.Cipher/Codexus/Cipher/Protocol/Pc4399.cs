@@ -10,15 +10,10 @@ using Codexus.Cipher.Utils.Exception;
 using Codexus.Cipher.Utils.Http;
 
 namespace Codexus.Cipher.Protocol;
-
-// Token: 0x02000025 RID: 37
 public class Pc4399 : IDisposable
 {
-	// Token: 0x17000027 RID: 39
-	// (get) Token: 0x060000E7 RID: 231 RVA: 0x000057C8 File Offset: 0x000039C8
 	public MPay MPay { get; }
 
-	// Token: 0x060000E8 RID: 232 RVA: 0x000057D0 File Offset: 0x000039D0
 	public Pc4399()
 	{
 		MPay = new MPay("aecfrxodyqaaaajp-g-x19", WPFLauncher.GetLatestVersionAsync().Result);
@@ -30,7 +25,6 @@ public class Pc4399 : IDisposable
 		});
 	}
 
-	// Token: 0x060000E9 RID: 233 RVA: 0x00005861 File Offset: 0x00003A61
 	public void Dispose()
 	{
 		MPay.Dispose();
@@ -40,7 +34,6 @@ public class Pc4399 : IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	// Token: 0x060000EA RID: 234 RVA: 0x000058A0 File Offset: 0x00003AA0
 	public async Task<string> LoginWithPasswordAsync(string username, string password,  string captchaIdentifier,  string captcha)
 	{
 		var num = captchaIdentifier == null && captcha == null;
@@ -72,7 +65,6 @@ public class Pc4399 : IDisposable
 		return await GenerateCookie();
 	}
 
-	// Token: 0x060000EB RID: 235 RVA: 0x00005904 File Offset: 0x00003B04
 	private async Task<string> GenerateCookie()
 	{
 		var value = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -102,7 +94,6 @@ public class Pc4399 : IDisposable
 		return _mgbSdk.GenerateSAuth(MPay.Unique, parameterBuilder.Get("username"), parameterBuilder.Get("uid"), parameterBuilder.Get("token"), parameterBuilder.Get("time"), "4399pc");
 	}
 
-	// Token: 0x060000EC RID: 236 RVA: 0x00005948 File Offset: 0x00003B48
 	private async Task<ParameterBuilder> GetUniAuth(string parameter)
 	{
 		var value = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -125,7 +116,6 @@ public class Pc4399 : IDisposable
 		return entity4399Response == null ? throw new Exception("Get Uni-auth failed") : new ParameterBuilder(entity4399Response.Data.SdkLoginData);
 	}
 
-	// Token: 0x060000ED RID: 237 RVA: 0x00005994 File Offset: 0x00003B94
 	private static ParameterBuilder BuildParametersLogin()
 	{
 		return new ParameterBuilder().Append("appId", "kid_wdsj").Append("autoLogin", "on").Append("bizId", "2201001794")
@@ -149,22 +139,10 @@ public class Pc4399 : IDisposable
 			.Append("userNameTip", "请输入4399用户名")
 			.Append("welcomeTip", "欢迎回到4399");
 	}
-
-	// Token: 0x04000068 RID: 104
 	private const string AppId = "kid_wdsj";
-
-	// Token: 0x04000069 RID: 105
 	private const string GameUrl = "https://cdn.h5wan.4399sj.com/microterminal-h5-frame?game_id=500352";
-
-	// Token: 0x0400006A RID: 106
 	private readonly CookieContainer _cookieContainer = new();
-
-	// Token: 0x0400006B RID: 107
 	private readonly HttpWrapper _login;
-
-	// Token: 0x0400006C RID: 108
 	private readonly MgbSdk _mgbSdk = new("x19");
-
-	// Token: 0x0400006D RID: 109
 	private readonly HttpWrapper _service = new("https://microgame.5054399.net");
 }

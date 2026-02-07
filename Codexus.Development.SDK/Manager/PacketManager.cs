@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Packet;
 using Serilog;
 
 namespace Codexus.Development.SDK.Manager;
-
-// Token: 0x0200001D RID: 29
 public class PacketManager
 {
-	// Token: 0x1700002B RID: 43
-	// (get) Token: 0x0600009B RID: 155 RVA: 0x0000424C File Offset: 0x0000244C
 	public static PacketManager Instance
 	{
 		get
@@ -27,14 +22,12 @@ public class PacketManager
 		}
 	}
 
-	// Token: 0x0600009C RID: 156 RVA: 0x00004264 File Offset: 0x00002464
 	private PacketManager()
 	{
 		RegisterDefaultPackets();
 		_registered = true;
 	}
 
-	// Token: 0x0600009D RID: 157 RVA: 0x000042B4 File Offset: 0x000024B4
 	private void RegisterDefaultPackets()
 	{
 		var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -44,7 +37,6 @@ public class PacketManager
 		}
 	}
 
-	// Token: 0x0600009E RID: 158 RVA: 0x000042EC File Offset: 0x000024EC
 	public void RegisterPacketFromAssembly(Assembly assembly)
 	{
 		foreach (var type2 in from type in assembly.GetTypes()
@@ -63,7 +55,6 @@ public class PacketManager
 		}
 	}
 
-	// Token: 0x0600009F RID: 159 RVA: 0x000043C0 File Offset: 0x000025C0
 	public void RegisterPacket(RegisterPacket metadata, Type type)
 	{
 		var flag = type.GetConstructor(Type.EmptyTypes) == null;
@@ -110,7 +101,6 @@ public class PacketManager
 		}
 	}
 
-	// Token: 0x060000A0 RID: 160 RVA: 0x00004538 File Offset: 0x00002738
 	public IPacket? BuildPacket(EnumConnectionState state, EnumPacketDirection direction, EnumProtocolVersion version, int packetId)
 	{
 		IPacket? packet;
@@ -133,7 +123,6 @@ public class PacketManager
 		return packet;
 	}
 
-	// Token: 0x060000A1 RID: 161 RVA: 0x000045C8 File Offset: 0x000027C8
 	public int GetPacketId(EnumProtocolVersion version, IPacket packet)
 	{
 		var type = packet.GetType();
@@ -150,21 +139,18 @@ public class PacketManager
 		return num;
 	}
 
-	// Token: 0x060000A2 RID: 162 RVA: 0x00004604 File Offset: 0x00002804
 	public RegisterPacket? GetMetadata(IPacket packet)
 	{
 		var type = packet.GetType();
 		return _metadata.GetValueOrDefault(type);
 	}
 
-	// Token: 0x060000A3 RID: 163 RVA: 0x0000462C File Offset: 0x0000282C
 	public EnumConnectionState GetState(IPacket packet)
 	{
 		var type = packet.GetType();
 		return _states.GetValueOrDefault(type);
 	}
 
-	// Token: 0x060000A4 RID: 164 RVA: 0x00004654 File Offset: 0x00002854
 	public void EnsureRegistered()
 	{
 		var registered = _registered;
@@ -174,22 +160,10 @@ public class PacketManager
 		}
 		throw new InvalidOperationException("Should never call CheckIsRegistered()");
 	}
-
-	// Token: 0x04000043 RID: 67
 	private static PacketManager? _instance;
-
-	// Token: 0x04000044 RID: 68
 	private readonly Dictionary<Type, Dictionary<EnumProtocolVersion, int>> _ids = new();
-
-	// Token: 0x04000045 RID: 69
 	private readonly Dictionary<Type, RegisterPacket> _metadata = new();
-
-	// Token: 0x04000046 RID: 70
 	private readonly Dictionary<EnumConnectionState, Dictionary<EnumPacketDirection, Dictionary<EnumProtocolVersion, Dictionary<int, Type>>>> _packets = new();
-
-	// Token: 0x04000047 RID: 71
 	private readonly bool _registered;
-
-	// Token: 0x04000048 RID: 72
 	private readonly Dictionary<Type, EnumConnectionState> _states = new();
 }
