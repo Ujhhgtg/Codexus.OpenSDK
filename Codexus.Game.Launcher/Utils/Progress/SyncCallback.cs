@@ -1,17 +1,18 @@
 ﻿using System;
 
 namespace Codexus.Game.Launcher.Utils.Progress;
+
 public class SyncCallback<T> : IProgress<T>
 {
+    public SyncCallback(Action<T> handler)
+    {
+        _handler = handler;
+    }
 
-	public SyncCallback(Action<T> handler)
-	{
-		_handler = handler;
-	}
+    public void Report(T value)
+    {
+        _handler(value);
+    }
 
-	public void Report(T value)
-	{
-		_handler(value);
-	}
-	private readonly Action<T> _handler;
+    private readonly Action<T> _handler;
 }

@@ -7,28 +7,39 @@ using DotNetty.Transport.Channels;
 
 namespace Codexus.Interceptors.Handlers;
 
-public class ServerHandler(Interceptor interceptor, EntitySocks5 socks5, string modInfo, string gameId, string forwardAddress, int forwardPort, string nickName, string userId, string userToken, Action<string>? onJoinServer) : ChannelHandlerAdapter
+public class ServerHandler(
+    Interceptor interceptor,
+    EntitySocks5 socks5,
+    string modInfo,
+    string gameId,
+    string forwardAddress,
+    int forwardPort,
+    string nickName,
+    string userId,
+    string userToken,
+    Action<string>? onJoinServer) : ChannelHandlerAdapter
 {
-	public override void ChannelActive(IChannelHandlerContext context)
-	{
-		interceptor.ActiveChannels.TryAdd(context.Channel.Id, context.Channel);
-		var channel = context.Channel;
-		var gameConnection = new GameConnection(socks5, modInfo, gameId, forwardAddress, forwardPort, nickName, userId, userToken, channel, onJoinServer)
-		{
-			InterceptorId = interceptor.Identifier
-		};
-		channel.GetAttribute(ChannelAttribute.Connection).Set(gameConnection);
-		gameConnection.Prepare();
-	}
+    public override void ChannelActive(IChannelHandlerContext context)
+    {
+        interceptor.ActiveChannels.TryAdd(context.Channel.Id, context.Channel);
+        var channel = context.Channel;
+        var gameConnection = new GameConnection(socks5, modInfo, gameId, forwardAddress, forwardPort, nickName, userId,
+            userToken, channel, onJoinServer)
+        {
+            InterceptorId = interceptor.Identifier
+        };
+        channel.GetAttribute(ChannelAttribute.Connection).Set(gameConnection);
+        gameConnection.Prepare();
+    }
 
-	public override void ChannelRead(IChannelHandlerContext context, object message)
-	{
-		context.Channel.GetAttribute(ChannelAttribute.Connection).Get().OnClientReceived((IByteBuffer)message);
-	}
+    public override void ChannelRead(IChannelHandlerContext context, object message)
+    {
+        context.Channel.GetAttribute(ChannelAttribute.Connection).Get().OnClientReceived((IByteBuffer)message);
+    }
 
-	public override void ChannelInactive(IChannelHandlerContext context)
-	{
-		interceptor.ActiveChannels.TryRemove(context.Channel.Id, out _);
-		context.Channel.GetAttribute(ChannelAttribute.Connection).Get().Shutdown();
-	}
+    public override void ChannelInactive(IChannelHandlerContext context)
+    {
+        interceptor.ActiveChannels.TryRemove(context.Channel.Id, out _);
+        context.Channel.GetAttribute(ChannelAttribute.Connection).Get().Shutdown();
+    }
 }

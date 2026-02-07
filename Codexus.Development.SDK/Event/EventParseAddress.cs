@@ -2,15 +2,16 @@
 using Codexus.Development.SDK.Manager;
 
 namespace Codexus.Development.SDK.Event;
+
 public class EventParseAddress : EventArgsBase
 {
-	public string Address { get; set; }
-	public int Port { get; set; }
+    public string Address { get; set; }
+    public int Port { get; set; }
 
-	public EventParseAddress(GameConnection connection, string address, int port)
-		: base(connection)
-	{
-		Address = address;
-		Port = port;
-	}
+    public EventParseAddress(GameConnection connection, string address, int port)
+        : base(connection)
+    {
+        Address = address;
+        Port = port;
+    }
 }

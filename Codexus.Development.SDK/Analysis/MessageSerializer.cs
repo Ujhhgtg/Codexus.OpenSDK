@@ -8,18 +8,18 @@ using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 
 namespace Codexus.Development.SDK.Analysis;
+
 public class MessageSerializer : MessageToByteEncoder<IPacket>
 {
-
-	protected override void Encode(IChannelHandlerContext context, IPacket message, IByteBuffer output)
-	{
-		var gameConnection = context.Channel.GetAttribute<GameConnection>(ChannelAttribute.Connection).Get();
-		var packetId = PacketManager.Instance.GetPacketId(gameConnection.ProtocolVersion, message);
-		var flag = packetId != -1;
-		if (flag)
-		{
-			output.WriteVarInt(packetId);
-			message.WriteToBuffer(output);
-		}
-	}
+    protected override void Encode(IChannelHandlerContext context, IPacket message, IByteBuffer output)
+    {
+        var gameConnection = context.Channel.GetAttribute<GameConnection>(ChannelAttribute.Connection).Get();
+        var packetId = PacketManager.Instance.GetPacketId(gameConnection.ProtocolVersion, message);
+        var flag = packetId != -1;
+        if (flag)
+        {
+            output.WriteVarInt(packetId);
+            message.WriteToBuffer(output);
+        }
+    }
 }

@@ -121,11 +121,8 @@ public class OpenTransport
         try
         {
             if (_serverChannel != null) await _serverChannel.CloseAsync();
-            
-            foreach (var channel in _activeChannels.Values)
-            {
-                await channel.CloseAsync();
-            }
+
+            foreach (var channel in _activeChannels.Values) await channel.CloseAsync();
         }
         finally
         {

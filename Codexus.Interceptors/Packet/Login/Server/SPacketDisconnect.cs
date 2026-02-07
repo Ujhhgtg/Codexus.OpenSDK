@@ -6,22 +6,26 @@ using DotNetty.Buffers;
 using Serilog;
 
 namespace Codexus.Interceptors.Packet.Login.Server;
+
 [RegisterPacket(EnumConnectionState.Login, EnumPacketDirection.ClientBound, 0)]
 public class SPacketDisconnect : IPacket
 {
-	public string Reason { get; set; } = "";
-	public EnumProtocolVersion ClientProtocolVersion { get; set; }
-	public void ReadFromBuffer(IByteBuffer buffer)
-	{
-		Reason = buffer.ReadStringFromBuffer(32767);
-	}
-	public void WriteToBuffer(IByteBuffer buffer)
-	{
-		buffer.WriteStringToBuffer(Reason);
-	}
-	public bool HandlePacket(GameConnection connection)
-	{
-		Log.Debug("Disconnect reason: {Reason}", [Reason]);
-		return false;
-	}
+    public string Reason { get; set; } = "";
+    public EnumProtocolVersion ClientProtocolVersion { get; set; }
+
+    public void ReadFromBuffer(IByteBuffer buffer)
+    {
+        Reason = buffer.ReadStringFromBuffer(32767);
+    }
+
+    public void WriteToBuffer(IByteBuffer buffer)
+    {
+        buffer.WriteStringToBuffer(Reason);
+    }
+
+    public bool HandlePacket(GameConnection connection)
+    {
+        Log.Debug("Disconnect reason: {Reason}", [Reason]);
+        return false;
+    }
 }

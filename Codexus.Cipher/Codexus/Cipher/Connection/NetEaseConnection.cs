@@ -233,20 +233,28 @@ namespace Codexus.Cipher.Connection;
 
 public static class NetEaseConnection
 {
-    private static readonly byte[] TokenKey = [172, 36, 156, 105, 199, 44, 179, 180, 78, 192, 204, 108, 84, 58, 129, 149
+    private static readonly byte[] TokenKey =
+    [
+        172, 36, 156, 105, 199, 44, 179, 180, 78, 192, 204, 108, 84, 58, 129, 149
     ];
+
     private static readonly byte[] ChaChaNonce = "163 NetEase\n"u8.ToArray();
 
-    public static int RandomAuthPort() => new Random().Next(0, 4) switch {
-        0 => 10200, 1 => 10600, 2 => 10400, _ => 10000
-    };
+    public static int RandomAuthPort()
+    {
+        return new Random().Next(0, 4) switch
+        {
+            0 => 10200, 1 => 10600, 2 => 10400, _ => 10000
+        };
+    }
 
     public static async Task CreateAuthenticatorAsync(
-        string serverId, string gameId, string gameVersion, string modInfo, string nexusToken, 
-        int userId, string userToken, string authAddress, int authPort, 
+        string serverId, string gameId, string gameVersion, string modInfo, string nexusToken,
+        int userId, string userToken, string authAddress, int authPort,
         Action handleSuccess,
         Func<string, string, int, string, byte[], string, byte[]> buildEstablishing = null,
-        Func<string, ChaChaOfSalsa, string, long, string, string, string, int, byte[], byte[]> buildJoinServerMessage = null)
+        Func<string, ChaChaOfSalsa, string, long, string, string, string, int, byte[], byte[]> buildJoinServerMessage =
+            null)
     {
         // Set defaults if null
         buildEstablishing ??= DefaultBuildEstablishing;
@@ -269,7 +277,8 @@ public static class NetEaseConnection
             details.ReadExactly(remoteKey);
             // The next 256 bytes are skipped/ignored in the logic despite being read
 
-            var establishMsg = buildEstablishing(nexusToken, gameVersion, userId, userToken, details.ToArray(), "netease");
+            var establishMsg =
+                buildEstablishing(nexusToken, gameVersion, userId, userToken, details.ToArray(), "netease");
             await stream.WriteAsync(establishMsg);
 
             // Phase 2: Check Status
@@ -286,7 +295,8 @@ public static class NetEaseConnection
             var decryptor = new ChaChaOfSalsa(remoteKey.CombineWith(userTokenXor), ChaChaNonce, false);
 
             // Phase 4: Join Server
-            var joinMsg = buildJoinServerMessage(nexusToken, encryptor, serverId, long.Parse(gameId), gameVersion, modInfo, "netease", userId, remoteKey);
+            var joinMsg = buildJoinServerMessage(nexusToken, encryptor, serverId, long.Parse(gameId), gameVersion,
+                modInfo, "netease", userId, remoteKey);
             await stream.WriteAsync(joinMsg);
 
             // Phase 5: Final Authentication Result
@@ -309,19 +319,24 @@ public static class NetEaseConnection
         }
     }
 
-    private static byte[] DefaultBuildEstablishing(string nexusToken, string gameVersion, int userId, string userToken, byte[] context, string channel)
+    private static byte[] DefaultBuildEstablishing(string nexusToken, string gameVersion, int userId, string userToken,
+        byte[] context, string channel)
     {
         Log.Information("Building establishing message");
         var api = new WebNexusApi(nexusToken);
-        var result = api.ComputeHandshakeBodyAsync(userId, userToken, Convert.ToBase64String(context), channel, gameVersion).GetAwaiter().GetResult();
+        var result = api
+            .ComputeHandshakeBodyAsync(userId, userToken, Convert.ToBase64String(context), channel, gameVersion)
+            .GetAwaiter().GetResult();
         return Convert.FromBase64String(JsonSerializer.Deserialize<EntityHandshake>(result).HandshakeBody);
     }
 
-    private static byte[] DefaultBuildJoinServerMessage(string nexusToken, ChaChaOfSalsa cipher, string serverId, long gameId, string gameVersion, string modInfo, string channel, int userId, byte[] handshakeKey)
+    private static byte[] DefaultBuildJoinServerMessage(string nexusToken, ChaChaOfSalsa cipher, string serverId,
+        long gameId, string gameVersion, string modInfo, string channel, int userId, byte[] handshakeKey)
     {
         Log.Information("Building join server message");
         var api = new WebNexusApi(nexusToken);
-        var result = api.ComputeAuthenticationBodyAsync(serverId, gameId, gameVersion, modInfo, channel, userId, Convert.ToBase64String(handshakeKey)).GetAwaiter().GetResult();
+        var result = api.ComputeAuthenticationBodyAsync(serverId, gameId, gameVersion, modInfo, channel, userId,
+            Convert.ToBase64String(handshakeKey)).GetAwaiter().GetResult();
         var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(result);
         return cipher.PackMessage(9, Convert.FromBase64String(dict["authBody"]));
     }

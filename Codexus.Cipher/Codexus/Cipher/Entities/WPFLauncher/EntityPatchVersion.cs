@@ -1,12 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Codexus.Cipher.Entities.WPFLauncher;
+
 public class EntityPatchVersion
 {
-	[JsonPropertyName("size")]
-	public long Size { get; set; }
-	[JsonPropertyName("url")]
-	public string Url { get; set; } = "";
-	[JsonPropertyName("md5")]
-	public string Md5 { get; set; } = "";
+    [JsonPropertyName("size")] public long Size { get; set; }
+    [JsonPropertyName("url")] public string Url { get; set; } = "";
+    [JsonPropertyName("md5")] public string Md5 { get; set; } = "";
 }

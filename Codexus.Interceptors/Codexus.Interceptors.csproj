@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Codexus.Interceptors</RootNamespace>
-    <AssemblyName>Codexus.Interceptors</AssemblyName>
-    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <Reference Include="BouncyCastle.Cryptography" />
-    <Reference Include="DotNetty.Buffers" />
-    <Reference Include="DotNetty.Common" />
-    <Reference Include="DotNetty.Transport" />
-    <Reference Include="Serilog" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Codexus.Development.SDK\Codexus.Development.SDK.csproj" />
-  </ItemGroup>
-  
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Codexus.Interceptors</RootNamespace>
+        <AssemblyName>Codexus.Interceptors</AssemblyName>
+        <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="BouncyCastle.Cryptography"/>
+        <Reference Include="DotNetty.Buffers"/>
+        <Reference Include="DotNetty.Common"/>
+        <Reference Include="DotNetty.Transport"/>
+        <Reference Include="Serilog"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Codexus.Development.SDK\Codexus.Development.SDK.csproj"/>
+    </ItemGroup>
+
 </Project>

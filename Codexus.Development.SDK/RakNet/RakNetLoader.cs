@@ -4,36 +4,33 @@ using Codexus.Development.SDK.Attributes;
 using Codexus.Development.SDK.Enums;
 
 namespace Codexus.Development.SDK.RakNet;
+
 public static class RakNetLoader
 {
+    public static void FindLoader()
+    {
+        var types = Assembly.LoadFrom("Codexus.RakNet.ug").GetTypes();
+        foreach (var type in types)
+        {
+            var customAttribute = type.GetCustomAttribute<ComponentLoader>(false);
+            var flag = customAttribute is { Type: EnumLoaderType.RakNet } &&
+                       typeof(IRakNetCreate).IsAssignableFrom(type);
+            if (flag)
+            {
+                _loader = type;
+                break;
+            }
+        }
 
-	public static void FindLoader()
-	{
-		var types = Assembly.LoadFrom("Codexus.RakNet.ug").GetTypes();
-		foreach (var type in types)
-		{
-			var customAttribute = type.GetCustomAttribute<ComponentLoader>(false);
-			var flag = customAttribute is { Type: EnumLoaderType.RakNet } && typeof(IRakNetCreate).IsAssignableFrom(type);
-			if (flag)
-			{
-				_loader = type;
-				break;
-			}
-		}
-		var flag2 = _loader == null;
-		if (flag2)
-		{
-			throw new Exception("Could not initialize RakNet");
-		}
-	}
+        var flag2 = _loader == null;
+        if (flag2) throw new Exception("Could not initialize RakNet");
+    }
 
-	public static IRakNetCreate ConstructLoader()
-	{
-		if (_loader == null)
-		{
-			throw new Exception("You must call FindLoader() before ConstructLoader()");
-		}
-		return (IRakNetCreate)Activator.CreateInstance(_loader);
-	}
-	private static Type? _loader;
+    public static IRakNetCreate ConstructLoader()
+    {
+        if (_loader == null) throw new Exception("You must call FindLoader() before ConstructLoader()");
+        return (IRakNetCreate)Activator.CreateInstance(_loader);
+    }
+
+    private static Type? _loader;
 }

@@ -1,12 +1,12 @@
 <Solution>
-  <Project Path="Codexus.Cipher/Codexus.Cipher.csproj" />
-  <Project Path="Codexus.Development.SDK/Codexus.Development.SDK.csproj" />
-  <Project Path="Codexus.ExampleConsole/Codexus.ExampleConsole.csproj" />
-  <Project Path="Codexus.ExampleMod/Codexus.ExampleMod.csproj" />
-  <Project Path="Codexus.Game.Launcher/Codexus.Game.Launcher.csproj" />
-  <Project Path="Codexus.Interceptors/Codexus.Interceptors.csproj" />
-  <Project Path="Codexus.ModHost/Codexus.ModHost.csproj" />
-  <Project Path="Codexus.ModSDK/Codexus.ModSDK.csproj" />
-  <Project Path="Codexus.OpenSDK/Codexus.OpenSDK.csproj" />
-  <Project Path="Codexus.OpenTransport/Codexus.OpenTransport.csproj" />
+    <Project Path="Codexus.Cipher/Codexus.Cipher.csproj"/>
+    <Project Path="Codexus.Development.SDK/Codexus.Development.SDK.csproj"/>
+    <Project Path="Codexus.ExampleConsole/Codexus.ExampleConsole.csproj"/>
+    <Project Path="Codexus.ExampleMod/Codexus.ExampleMod.csproj"/>
+    <Project Path="Codexus.Game.Launcher/Codexus.Game.Launcher.csproj"/>
+    <Project Path="Codexus.Interceptors/Codexus.Interceptors.csproj"/>
+    <Project Path="Codexus.ModHost/Codexus.ModHost.csproj"/>
+    <Project Path="Codexus.ModSDK/Codexus.ModSDK.csproj"/>
+    <Project Path="Codexus.OpenSDK/Codexus.OpenSDK.csproj"/>
+    <Project Path="Codexus.OpenTransport/Codexus.OpenTransport.csproj"/>
 </Solution>

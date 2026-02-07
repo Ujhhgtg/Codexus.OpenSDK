@@ -25,7 +25,7 @@ public class GameProfile
             BootstrapMd5 = BootstrapMd5,
             DatFileMd5 = DatFileMd5,
             Mods = Mods.Clone(),
-            User = User.Clone() 
+            User = User.Clone()
         };
     }
 }

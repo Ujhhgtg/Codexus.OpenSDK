@@ -5,23 +5,27 @@ using DotNetty.Buffers;
 using Serilog;
 
 namespace Codexus.Interceptors.Packet.Configuration.Client;
+
 [RegisterPacket(EnumConnectionState.Configuration, EnumPacketDirection.ServerBound, 3, [
-	EnumProtocolVersion.V1206,
-	EnumProtocolVersion.V1210
+    EnumProtocolVersion.V1206,
+    EnumProtocolVersion.V1210
 ])]
 public class CAcknowledgeFinishConfiguration : IPacket
 {
-	public EnumProtocolVersion ClientProtocolVersion { get; set; }
-	public void ReadFromBuffer(IByteBuffer buffer)
-	{
-	}
-	public void WriteToBuffer(IByteBuffer buffer)
-	{
-	}
-	public bool HandlePacket(GameConnection connection)
-	{
-		connection.State = EnumConnectionState.Play;
-		Log.Debug("Finished configuration.", []);
-		return false;
-	}
+    public EnumProtocolVersion ClientProtocolVersion { get; set; }
+
+    public void ReadFromBuffer(IByteBuffer buffer)
+    {
+    }
+
+    public void WriteToBuffer(IByteBuffer buffer)
+    {
+    }
+
+    public bool HandlePacket(GameConnection connection)
+    {
+        connection.State = EnumConnectionState.Play;
+        Log.Debug("Finished configuration.", []);
+        return false;
+    }
 }

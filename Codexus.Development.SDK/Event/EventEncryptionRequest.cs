@@ -2,13 +2,14 @@
 using Codexus.Development.SDK.Manager;
 
 namespace Codexus.Development.SDK.Event;
+
 public class EventEncryptionRequest : EventArgsBase
 {
-	public string ServerId { get; }
+    public string ServerId { get; }
 
-	public EventEncryptionRequest(GameConnection connection, string serverId)
-		: base(connection)
-	{
-		ServerId = serverId;
-	}
+    public EventEncryptionRequest(GameConnection connection, string serverId)
+        : base(connection)
+    {
+        ServerId = serverId;
+    }
 }

@@ -201,7 +201,7 @@ public static class CaptchaHandler
         // Here you would parse resultJson and decide which handler to call.
         // Simplified logic:
         ResetCaptchaState();
-            
+
         // Logic to launch server and wait
         await StartCaptchaServerAsync();
         return await WaitForCaptchaCompletionAsync();
@@ -230,28 +230,26 @@ public static class CaptchaHandler
     {
         var port = NetworkUtil.GetAvailablePort();
         while (true)
-        {
             try
             {
                 var server = new CaptchaHttpServer(port);
                 await server.StartAsync();
-                    
+
                 Log.Information("Captcha HTTP server started on port {Port}", port);
-                    
+
                 var url = $"http://127.0.0.1:{port}/";
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = url,
                     UseShellExecute = true
                 });
-                    
+
                 return server;
             }
             catch (HttpListenerException)
             {
                 port = NetworkUtil.GetAvailablePort(); // Try another port if busy
             }
-        }
     }
 
     private static void ResetCaptchaState()

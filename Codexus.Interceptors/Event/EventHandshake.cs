@@ -6,5 +6,5 @@ namespace Codexus.Interceptors.Event;
 
 public class EventHandshake(GameConnection connection, CHandshake handshake) : EventArgsBase(connection)
 {
-	public CHandshake Handshake { get; } = handshake;
+    public CHandshake Handshake { get; } = handshake;
 }

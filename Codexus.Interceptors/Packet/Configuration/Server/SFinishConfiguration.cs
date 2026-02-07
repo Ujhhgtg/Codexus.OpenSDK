@@ -4,21 +4,25 @@ using Codexus.Development.SDK.Packet;
 using DotNetty.Buffers;
 
 namespace Codexus.Interceptors.Packet.Configuration.Server;
+
 [RegisterPacket(EnumConnectionState.Configuration, EnumPacketDirection.ClientBound, 3, [
-	EnumProtocolVersion.V1206,
-	EnumProtocolVersion.V1210
+    EnumProtocolVersion.V1206,
+    EnumProtocolVersion.V1210
 ])]
 public class SFinishConfiguration : IPacket
 {
-	public EnumProtocolVersion ClientProtocolVersion { get; set; }
-	public void ReadFromBuffer(IByteBuffer buffer)
-	{
-	}
-	public void WriteToBuffer(IByteBuffer buffer)
-	{
-	}
-	public bool HandlePacket(GameConnection connection)
-	{
-		return false;
-	}
+    public EnumProtocolVersion ClientProtocolVersion { get; set; }
+
+    public void ReadFromBuffer(IByteBuffer buffer)
+    {
+    }
+
+    public void WriteToBuffer(IByteBuffer buffer)
+    {
+    }
+
+    public bool HandlePacket(GameConnection connection)
+    {
+        return false;
+    }
 }
