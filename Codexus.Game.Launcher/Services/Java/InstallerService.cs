@@ -33,7 +33,7 @@ public static class InstallerService
 			throw new Exception("Failed to fetch base package: " + minecraftClientLibs.Message);
 		}
 		await ProcessPackage(minecraftClientLibs.Data.Url, zipPath, PathUtil.GameBasePath, md5Path, minecraftClientLibs.Data.Md5, "base package");
-		var versionResult = wpfLauncher.GetMinecraftClientLibs(userId, userToken, new EnumGameVersion?(gameVersion));
+		var versionResult = wpfLauncher.GetMinecraftClientLibs(userId, userToken, gameVersion);
 		if (versionResult.Code != 0)
 		{
 			throw new Exception("Failed to fetch " + versionName + " package: " + versionResult.Message);
@@ -57,7 +57,7 @@ public static class InstallerService
 		}
 
 		// 2. Setup Progress Tracking
-		var progressBar = new SyncProgressBarUtil.ProgressBar(100, null);
+		var progressBar = new SyncProgressBarUtil.ProgressBar(100);
 		IProgress<SyncProgressBarUtil.ProgressReport> uiProgress = new Progress<SyncProgressBarUtil.ProgressReport>(update =>
 		{
 			progressBar.Update(update.Percent, update.Message);
@@ -178,7 +178,7 @@ public static class InstallerService
 							var flag11 = fileName.Equals(text4);
 							if (flag11)
 							{
-								var text16 = Path.Combine(new string[]
+								var text16 = Path.Combine(new[]
 								{
 									PathUtil.GameBasePath,
 									".minecraft",
@@ -193,7 +193,7 @@ public static class InstallerService
 								var flag12 = fileName.Equals(text5);
 								if (flag12)
 								{
-									var text17 = Path.Combine(new string[]
+									var text17 = Path.Combine(new[]
 									{
 										PathUtil.GameBasePath,
 										".minecraft",
@@ -208,7 +208,7 @@ public static class InstallerService
 									var flag13 = fileName.StartsWith("modlauncher-") && fileName.Contains("9.1.0");
 									if (flag13)
 									{
-										var text18 = Path.Combine(new string[]
+										var text18 = Path.Combine(new[]
 										{
 											PathUtil.GameBasePath,
 											".minecraft",
@@ -221,7 +221,7 @@ public static class InstallerService
 										var flag14 = fileName.StartsWith("modlauncher-") && fileName.Contains("10.0.9");
 										if (flag14)
 										{
-											var text19 = Path.Combine(new string[]
+											var text19 = Path.Combine(new[]
 											{
 												PathUtil.GameBasePath,
 												".minecraft",
@@ -234,7 +234,7 @@ public static class InstallerService
 											var flag15 = fileName.StartsWith("modlauncher-") && fileName.Contains("10.2.1");
 											if (flag15)
 											{
-												var text20 = Path.Combine(new string[]
+												var text20 = Path.Combine(new[]
 												{
 													PathUtil.GameBasePath,
 													".minecraft",
@@ -482,7 +482,7 @@ public static class InstallerService
 		try
 		{
 			var text = Path.Combine(PathUtil.ResourcePath, "api-ms-win-crt-utility-l1-1-1.dll");
-			var text2 = Path.Combine(new string[]
+			var text2 = Path.Combine(new[]
 			{
 				PathUtil.GameBasePath,
 				".minecraft",

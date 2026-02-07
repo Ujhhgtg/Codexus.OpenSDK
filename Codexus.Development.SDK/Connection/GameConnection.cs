@@ -25,7 +25,7 @@ public class GameConnection : IConnection
 	public EnumProtocolVersion ProtocolVersion { get; set; }
 	public EnumConnectionState State { get; set; }
 		
-	public Action<string> OnJoinServer
+	public Action<string>? OnJoinServer
 	{
 		get;
 		set;
@@ -39,7 +39,7 @@ public class GameConnection : IConnection
 	public byte[] Uuid { get; set; }
 	public Guid InterceptorId { get; set; }
 
-	public GameConnection(EntitySocks5 socks5, string modInfo, string gameId, string forwardAddress, int forwardPort, string nickName, string userId, string userToken, IChannel channel,  Action<string> onJoinServer)
+	public GameConnection(EntitySocks5 socks5, string modInfo, string gameId, string forwardAddress, int forwardPort, string nickName, string userId, string userToken, IChannel channel, Action<string>? onJoinServer)
 	{
 		_socks5 = socks5;
 		ClientChannel = channel;
@@ -144,7 +144,7 @@ public class GameConnection : IConnection
 
 	public void Shutdown()
 	{
-		EventManager.Instance.TriggerEvent<EventConnectionClosed>("channel_connection", new EventConnectionClosed(this));
+		EventManager.Instance.TriggerEvent("channel_connection", new EventConnectionClosed(this));
 		Log.Debug("Shutting down connection...", []);
 		TaskGroup.ShutdownGracefullyAsync();
 		ClientChannel.CloseAsync();

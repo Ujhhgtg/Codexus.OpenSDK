@@ -300,5 +300,6 @@ public partial class MemoryOptimizer : IDisposable
 	private readonly Lock _lockObject = new();
 	private bool _disposed;
 	public static Func<Process, bool>? IsMinecraftProcessFunc;
-    private static readonly string[] SourceArray = new[] { "minecraft", "net.minecraft", "launchwrapper", "forge", "fabric", "quilt", "optifine", ".minecraft", "versions", "libraries" };
+    private static readonly string[] SourceArray = ["minecraft", "net.minecraft", "launchwrapper", "forge", "fabric", "quilt", "optifine", ".minecraft", "versions", "libraries"
+    ];
 }

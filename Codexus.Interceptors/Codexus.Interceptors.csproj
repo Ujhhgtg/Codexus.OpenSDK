@@ -1,45 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{74702A35-7C14-4892-8360-FC253400499A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Codexus.Interceptors</RootNamespace>
     <AssemblyName>Codexus.Interceptors</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <FileAlignment>512</FileAlignment>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-  <PropertyGroup>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <EnableDefaultItems>False</EnableDefaultItems>
-  </PropertyGroup>
-  <PropertyGroup />
-  <ItemGroup>
-    <Compile Include="Event\EventHandshake.cs" />
-    <Compile Include="Handlers\ServerHandler.cs" />
-    <Compile Include="Interceptor.cs" />
-    <Compile Include="Packet\Configuration\Client\CAcknowledgeConfiguration.cs" />
-    <Compile Include="Packet\Configuration\Client\CAcknowledgeFinishConfiguration.cs" />
-    <Compile Include="Packet\Configuration\Server\SFinishConfiguration.cs" />
-    <Compile Include="Packet\Configuration\Server\SStartConfiguration.cs" />
-    <Compile Include="Packet\Handshake\Client\CHandshake.cs" />
-    <Compile Include="Packet\Login\Client\CPacketEncryptionResponse.cs" />
-    <Compile Include="Packet\Login\Client\CPacketLoginAcknowledged.cs" />
-    <Compile Include="Packet\Login\Client\CPacketLoginStart.cs" />
-    <Compile Include="Packet\Login\Server\SPacketDisconnect.cs" />
-    <Compile Include="Packet\Login\Server\SPacketEnableCompression.cs" />
-    <Compile Include="Packet\Login\Server\SPacketEncryptionRequest.cs" />
-    <Compile Include="Packet\Login\Server\SPacketLoginSuccess.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
+  
   <ItemGroup>
     <Reference Include="BouncyCastle.Cryptography" />
-    <Reference Include="Codexus.Development.SDK">
-      <HintPath>..\..\..\SDK\Codexus.Development.SDK.dll</HintPath>
-    </Reference>
     <Reference Include="DotNetty.Buffers" />
     <Reference Include="DotNetty.Common" />
     <Reference Include="DotNetty.Transport" />
     <Reference Include="Serilog" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Codexus.Development.SDK\Codexus.Development.SDK.csproj" />
+  </ItemGroup>
+  
 </Project>

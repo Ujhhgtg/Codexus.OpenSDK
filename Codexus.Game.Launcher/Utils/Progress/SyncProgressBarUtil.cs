@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace Codexus.Game.Launcher.Utils.Progress;
 public static class SyncProgressBarUtil

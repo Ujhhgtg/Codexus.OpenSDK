@@ -46,7 +46,7 @@ public static class CompressionUtil
 			var zipArchive = ZipArchive.Open(filePath);
 			try
 			{
-				IArchiveExtensions.ExtractToDirectory(zipArchive, outPath, delegate(double dp)
+				zipArchive.ExtractToDirectory(outPath, delegate(double dp)
 				{
 					progressAction((int)(dp * 100.0));
 				}, CancellationToken.None);

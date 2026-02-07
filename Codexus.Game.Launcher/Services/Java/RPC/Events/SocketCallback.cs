@@ -21,11 +21,9 @@ public class SocketCallback
 		{
 			return false;
 		}
-		else
-		{
-			action(parameters);
-			return true;
-		}
+
+		action(parameters);
+		return true;
 	}
 	private readonly Dictionary<ushort, Action<byte[]>> _receiveCallbacks = new();
 }
