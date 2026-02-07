@@ -1,101 +1,67 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using SharpCompress.Archives;
-using SharpCompress.Archives.SevenZip;
-using SharpCompress.Archives.Zip;
+using SharpCompress.Common;
 
 namespace Codexus.Game.Launcher.Utils;
 
-// TODO: do not upgrade SevenCompress, API has changed
 public static class CompressionUtil
 {
-    public static bool Extract7Z(string filePath, string outPath, Action<int> progressAction)
+    public static bool ExtractArchive(string filePath, string outPath, Action<int>? progressAction = null)
     {
-        bool flag;
         try
         {
-            var sevenZipArchive = SevenZipArchive.Open(filePath);
-            try
-            {
-                sevenZipArchive.ExtractToDirectory(outPath, delegate(double dp) { progressAction((int)(dp * 100.0)); },
-                    CancellationToken.None);
-                flag = true;
-            }
-            finally
-            {
-                sevenZipArchive.Dispose();
-            }
+            using var archive = ArchiveFactory.OpenArchive(filePath);
+            ExtractInternal(archive, outPath, progressAction);
+            return true;
         }
-        catch
+        catch (Exception)
         {
-            flag = ExtractZip(filePath, outPath, progressAction);
+            return false;
         }
-
-        return flag;
     }
-
-    private static bool ExtractZip(string filePath, string outPath, Action<int> progressAction)
+    
+    public static async Task ExtractArchiveAsync(string filePath, string outputDir, Action<int>? progress = null)
     {
-        bool flag;
-        try
+        // Offload to a background thread to keep UI responsive
+        await Task.Run(() =>
         {
-            var zipArchive = ZipArchive.Open(filePath);
-            try
-            {
-                zipArchive.ExtractToDirectory(outPath, delegate(double dp) { progressAction((int)(dp * 100.0)); },
-                    CancellationToken.None);
-                flag = true;
-            }
-            finally
-            {
-                zipArchive.Dispose();
-            }
-        }
-        catch
-        {
-            flag = false;
-        }
-
-        return flag;
-    }
-
-    public static async Task Extract7ZAsync(string archivePath, string outputDir, Action<int>? progress = null)
-    {
-        await Task.Run(delegate
-        {
-            var archive = ArchiveFactory.Open(archivePath);
-            try
-            {
-                var num = archive.Entries.Count();
-                var num2 = 0;
-                foreach (var archiveEntry in archive.Entries)
-                {
-                    var flag = archiveEntry != null && !archiveEntry.IsDirectory && archiveEntry.Key != null;
-                    if (flag)
-                    {
-                        var text = Path.Combine(outputDir, archiveEntry.Key);
-                        var directoryName = Path.GetDirectoryName(text);
-                        var flag2 = directoryName == null;
-                        if (flag2) throw new ArgumentException("Invalid directory name");
-                        var flag3 = !Directory.Exists(directoryName);
-                        if (flag3) Directory.CreateDirectory(directoryName);
-
-                        using var stream = archiveEntry.OpenEntryStream();
-                        using var fileStream = File.Create(text);
-                        stream.CopyTo(fileStream);
-                    }
-
-                    num2++;
-                    if (progress != null) progress((int)(num2 / (double)num * 100.0));
-                }
-            }
-            finally
-            {
-                archive.Dispose();
-            }
+            using var archive = ArchiveFactory.OpenArchive(filePath);
+            ExtractInternal(archive, outputDir, progress);
         });
+    }
+    
+    public static bool Extract7Z(string filePath, string outPath, Action<int> progressAction) => ExtractArchive(filePath, outPath, progressAction);
+    
+    public static async Task Extract7ZAsync(string filePath, string outputDir, Action<int>? progress = null) =>  await ExtractArchiveAsync(filePath, outputDir, progress);
+
+    private static void ExtractInternal(IArchive archive, string outputDir, Action<int>? progressAction)
+    {
+        // Filter entries to get only files (ignores directory entries as WriteToDirectory handles folder creation)
+        var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+        var total = entries.Count;
+        var current = 0;
+
+        var extractionOptions = new ExtractionOptions
+        {
+            ExtractFullPath = true,
+            Overwrite = true
+        };
+
+        foreach (var entry in entries)
+        {
+            if (entry.Key == null) continue;
+
+            // built-in extraction handles path combining and directory creation safely
+            entry.WriteToDirectory(outputDir, extractionOptions);
+
+            current++;
+            if (total > 0)
+            {
+                var percent = (int)((double)current / total * 100);
+                progressAction?.Invoke(percent);
+            }
+        }
     }
 }
