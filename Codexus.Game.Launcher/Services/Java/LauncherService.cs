@@ -218,15 +218,14 @@ public sealed class LauncherService : IDisposable
 		}
 	}
 
-	[return: TupleElementNames(["commandService", "rpcPort"])]
-	private ValueTuple<CommandService, int> InitializeLauncher(EnumGameVersion enumVersion, string workingDirectory)
+	private (CommandService commandService, int rpcPort) InitializeLauncher(EnumGameVersion enumVersion, string workingDirectory)
 	{
 		var commandService = new CommandService();
 		var availablePort = NetworkUtil.GetAvailablePort(11413);
 		var text = TokenUtil.GenerateEncryptToken(_userToken);
 		var text2 = _skip32.GenerateRoleUuid(Entity.RoleName, Convert.ToUInt32(Entity.UserId));
 		commandService.Init(enumVersion, Entity.MaxGameMemory, Entity.RoleName, Entity.ServerIp, Entity.ServerPort, Entity.UserId, text, Entity.GameId, workingDirectory, text2, _socketPort, _protocolVersion, true, availablePort);
-		return new ValueTuple<CommandService, int>(commandService, availablePort);
+		return (commandService, availablePort);
 	}
 
 	private void LaunchRpcService(EnumGameVersion gameVersion, int rpcPort)

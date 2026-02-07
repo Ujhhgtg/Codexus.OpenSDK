@@ -23,10 +23,10 @@ public static class InstallerService
 			}
 			else
 			{
-				FileUtil.CleanDirectorySafe(paths.Item1);
+				FileUtil.CleanDirectorySafe(paths.BasePath);
 				using var progressBar = new SyncProgressBarUtil.ProgressBar(100);
 				var progress = CreateProgressReporter(progressBar);
-				var flag2 = await DownloadMinecraftPackage(paths.Item2, progress);
+				var flag2 = await DownloadMinecraftPackage(paths.ArchivePath, progress);
 				var flag3 = !flag2;
 				if (flag3)
 				{
@@ -34,16 +34,16 @@ public static class InstallerService
 				}
 				else
 				{
-					var flag4 = await ValidateDownloadedPackage(paths.Item2, progress);
+					var flag4 = await ValidateDownloadedPackage(paths.ArchivePath, progress);
 					if (!flag4)
 					{
 						flag = false;
 					}
 					else
 					{
-						await ExtractMinecraftPackage(paths.Item2, paths.Item1, progress);
-						await SavePackageHash(paths.Item2, paths.Item3);
-						await CleanupTemporaryFiles(paths.Item2, progress);
+						await ExtractMinecraftPackage(paths.ArchivePath, paths.BasePath, progress);
+						await SavePackageHash(paths.ArchivePath, paths.HashPath);
+						await CleanupTemporaryFiles(paths.ArchivePath, progress);
 						flag = true;
 					}
 				}
@@ -60,17 +60,15 @@ public static class InstallerService
 		return flag;
 	}
 
-	[return: TupleElementNames(["BasePath", "ArchivePath", "HashPath", "ExecutablePath"])]
-	private static ValueTuple<string, string, string, string> GetInstallationPaths()
+	private static (string BasePath, string ArchivePath, string HashPath, string ExecutablePath) GetInstallationPaths()
 	{
 		var cppGamePath = PathUtil.CppGamePath;
-		return new ValueTuple<string, string, string, string>(cppGamePath, Path.Combine(cppGamePath, "mc_base.7z"), Path.Combine(cppGamePath, "minecraft_pe.md5"), Path.Combine(cppGamePath, "windowsmc/Minecraft.Windows.exe"));
+		return (cppGamePath, Path.Combine(cppGamePath, "mc_base.7z"), Path.Combine(cppGamePath, "minecraft_pe.md5"), Path.Combine(cppGamePath, "windowsmc/Minecraft.Windows.exe"));
 	}
 
-	private static async Task<bool> IsMinecraftInstalledAsync([TupleElementNames(["BasePath", "ArchivePath", "HashPath", "ExecutablePath"
-	])] ValueTuple<string, string, string, string> paths)
+	private static async Task<bool> IsMinecraftInstalledAsync((string BasePath, string ArchivePath, string HashPath, string ExecutablePath) paths)
 	{
-		var flag = !File.Exists(paths.Item4) || !File.Exists(paths.Item3);
+		var flag = !File.Exists(paths.ExecutablePath) || !File.Exists(paths.HashPath);
 		bool flag2;
 		if (flag)
 		{
@@ -80,7 +78,7 @@ public static class InstallerService
 		{
 			try
 			{
-				var array = await File.ReadAllBytesAsync(paths.Item3);
+				var array = await File.ReadAllBytesAsync(paths.HashPath);
 				flag2 = string.Equals(Convert.ToHexStringLower(array), "50ac5016023c295222b979565b9c707b", StringComparison.OrdinalIgnoreCase);
 			}
 			catch (Exception)
