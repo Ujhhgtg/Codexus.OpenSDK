@@ -46,7 +46,7 @@ public class Interceptor(
         Action<string>? onJoinServer = null, string localAddress = "127.0.0.1", int localPort = 6445)
     {
         var eventCreateInterceptor =
-            EventManager.Instance.TriggerEvent<EventCreateInterceptor>("channel_interceptor",
+            EventManager.Instance.TriggerEvent("channel_interceptor",
                 new EventCreateInterceptor(localPort));
         var isCancelled = eventCreateInterceptor.IsCancelled;
         if (isCancelled) throw new InvalidOperationException("Create Interceptor cancelled");
@@ -65,7 +65,7 @@ public class Interceptor(
             .Option(ChannelOption.SoRcvbuf, 1048576)
             .Option(ChannelOption.WriteBufferHighWaterMark, 1048576)
             .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(10.0))
-            .ChildHandler(new ActionChannelInitializer<IChannel>(delegate(IChannel channel)
+            .ChildHandler(new ActionChannelInitializer<IChannel>(channel =>
             {
                 channel.Pipeline.AddLast("splitter", new MessageDeserializer21Bit()).AddLast("handler",
                         new ServerHandler(interceptor, socks5, modInfo, gameId, forwardAddress, forwardPort, nickName,
@@ -73,16 +73,12 @@ public class Interceptor(
                     .AddLast("encoder", new MessageSerializer());
             }))
             .LocalAddress(IPAddress.Any, availablePort);
-        var text = "请通过{Address}游玩";
+        const string text = "请通过 {Address} 游玩";
         var array = new object[1];
-        var num = 0;
-        var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(1, 2);
-        defaultInterpolatedStringHandler.AppendFormatted(localAddress);
-        defaultInterpolatedStringHandler.AppendLiteral(":");
-        defaultInterpolatedStringHandler.AppendFormatted(availablePort);
-        array[num] = defaultInterpolatedStringHandler.ToStringAndClear();
+        const int num = 0;
+        array[num] = $"{localAddress}:{localPort}";
         Log.Information(text, array);
-        Log.Information("您的名字:{Name}", [nickName]);
+        Log.Information("您的名字: {Name}", [nickName]);
         interceptor.UdpBroadcaster = new UdpBroadcaster("224.0.2.60", 4445, availablePort, forwardAddress, nickName,
             serverVersion.Contains("1.8.") || serverVersion.Contains("1.7."));
         serverBootstrap.BindAsync().ContinueWith(delegate(Task<IChannel> task)

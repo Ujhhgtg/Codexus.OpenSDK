@@ -13,7 +13,7 @@ public class MessageSerializer : MessageToByteEncoder<IPacket>
 {
     protected override void Encode(IChannelHandlerContext context, IPacket message, IByteBuffer output)
     {
-        var gameConnection = context.Channel.GetAttribute<GameConnection>(ChannelAttribute.Connection).Get();
+        var gameConnection = context.Channel.GetAttribute(ChannelAttribute.Connection).Get();
         var packetId = PacketManager.Instance.GetPacketId(gameConnection.ProtocolVersion, message);
         var flag = packetId != -1;
         if (flag)

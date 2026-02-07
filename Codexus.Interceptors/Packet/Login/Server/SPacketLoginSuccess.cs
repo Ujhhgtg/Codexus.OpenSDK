@@ -125,7 +125,7 @@ public class SPacketLoginSuccess : IPacket
         else
         {
             var isCancelled = EventManager.Instance
-                .TriggerEvent<EventLoginSuccess>(MessageChannels.AllVersions, new EventLoginSuccess(connection))
+                .TriggerEvent(MessageChannels.AllVersions, new EventLoginSuccess(connection))
                 .IsCancelled;
             if (isCancelled)
             {

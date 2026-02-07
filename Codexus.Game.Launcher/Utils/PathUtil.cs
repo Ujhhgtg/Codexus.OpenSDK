@@ -29,7 +29,7 @@ public static class PathUtil
         }
         catch (Exception ex)
         {
-            Log.Error<string>(ex, "Failed to open directory: {Path}", path);
+            Log.Error(ex, "Failed to open directory: {Path}", path);
         }
     }
 

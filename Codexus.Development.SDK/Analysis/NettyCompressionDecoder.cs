@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Codexus.Development.SDK.Extensions;
 using DotNetty.Buffers;
 using DotNetty.Codecs;
@@ -10,51 +9,37 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 
 namespace Codexus.Development.SDK.Analysis;
 
-public class NettyCompressionDecoder : ByteToMessageDecoder
+public class NettyCompressionDecoder(int threshold) : ByteToMessageDecoder
 {
-    public int Threshold { get; set; }
-
-    public NettyCompressionDecoder(int threshold)
-    {
-        Threshold = threshold;
-    }
+    public int Threshold { get; set; } = threshold;
 
     protected override void Decode(IChannelHandlerContext context, IByteBuffer input, List<object> output)
     {
-        var flag = input.ReadableBytes == 0;
-        if (!flag)
+        if (input.ReadableBytes != 0)
         {
-            var num = input.ReadVarIntFromBuffer();
-            var flag2 = num == 0;
-            if (flag2)
+            var varInt = input.ReadVarIntFromBuffer();
+            if (varInt == 0)
             {
                 output.Add(input.ReadBytes(input.ReadableBytes));
             }
             else
             {
-                var flag3 = num < Threshold;
-                if (flag3)
+                if (varInt < Threshold)
                 {
-                    var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(40, 2);
-                    defaultInterpolatedStringHandler.AppendLiteral("Decompressed length ");
-                    defaultInterpolatedStringHandler.AppendFormatted(num);
-                    defaultInterpolatedStringHandler.AppendLiteral(" is below threshold ");
-                    defaultInterpolatedStringHandler.AppendFormatted(Threshold);
-                    throw new DecoderException(defaultInterpolatedStringHandler.ToStringAndClear());
+                    throw new DecoderException($"Decompressed length {varInt} is below threshold {Threshold}");
                 }
 
                 var array = new byte[input.ReadableBytes];
                 input.ReadBytes(array);
-                var array2 = _arrayPool.Rent(Math.Max(4096, num));
+                var array2 = _arrayPool.Rent(Math.Max(4096, varInt));
                 try
                 {
                     _inflater.Reset();
                     _inflater.SetInput(array);
-                    var isNeedingDictionary = _inflater.IsNeedingDictionary;
-                    if (isNeedingDictionary) throw new DecoderException("Inflater requires dictionary");
-                    var byteBuffer = context.Allocator.HeapBuffer(num);
+                    if (_inflater.IsNeedingDictionary) throw new DecoderException("Inflater requires dictionary");
+                    var byteBuffer = context.Allocator.HeapBuffer(varInt);
                     var num2 = 0;
-                    while (!_inflater.IsFinished && num2 < num)
+                    while (!_inflater.IsFinished && num2 < varInt)
                     {
                         var num3 = _inflater.Inflate(array2);
                         var flag4 = num3 == 0 && _inflater.IsNeedingInput;
@@ -63,16 +48,11 @@ public class NettyCompressionDecoder : ByteToMessageDecoder
                         num2 += num3;
                     }
 
-                    var flag5 = num2 != num;
+                    var flag5 = num2 != varInt;
                     if (flag5)
                     {
                         byteBuffer.Release();
-                        var defaultInterpolatedStringHandler2 = new DefaultInterpolatedStringHandler(45, 2);
-                        defaultInterpolatedStringHandler2.AppendLiteral("Decompressed length mismatch: expected ");
-                        defaultInterpolatedStringHandler2.AppendFormatted(num);
-                        defaultInterpolatedStringHandler2.AppendLiteral(", got ");
-                        defaultInterpolatedStringHandler2.AppendFormatted(num2);
-                        throw new DecoderException(defaultInterpolatedStringHandler2.ToStringAndClear());
+                        throw new DecoderException($"Decompressed length mismatch: expected {varInt}, got {num2}");
                     }
 
                     output.Add(byteBuffer);

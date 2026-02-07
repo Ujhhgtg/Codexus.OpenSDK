@@ -20,44 +20,37 @@ using Serilog;
 
 namespace Codexus.Development.SDK.Connection;
 
-public class GameConnection : IConnection
+public class GameConnection(
+    EntitySocks5 socks5,
+    string modInfo,
+    string gameId,
+    string forwardAddress,
+    int forwardPort,
+    string nickName,
+    string userId,
+    string userToken,
+    IChannel channel,
+    Action<string>? onJoinServer)
+    : IConnection
 {
-    public string NickName { get; set; }
-    public EnumProtocolVersion ProtocolVersion { get; set; }
+    public string NickName { get; set; } = nickName;
+    public EnumProtocolVersion ProtocolVersion { get; set; } = EnumProtocolVersion.None;
     public EnumConnectionState State { get; set; }
 
-    public Action<string>? OnJoinServer { get; set; }
-    public MultithreadEventLoopGroup TaskGroup { get; }
-    public GameSession Session { get; set; }
-    public string GameId { get; }
-    public string ModInfo { get; }
-    public int ForwardPort { get; }
-    public string ForwardAddress { get; }
-    public byte[] Uuid { get; set; }
+    public Action<string>? OnJoinServer { get; set; } = onJoinServer;
+    public MultithreadEventLoopGroup TaskGroup { get; } = new();
+    public GameSession Session { get; set; } = new(nickName, userId, userToken);
+    public string GameId { get; } = gameId;
+    public string ModInfo { get; } = modInfo;
+    public int ForwardPort { get; } = forwardPort;
+    public string ForwardAddress { get; } = forwardAddress;
+    public byte[] Uuid { get; set; } = new byte[16];
     public Guid InterceptorId { get; set; }
-
-    public GameConnection(EntitySocks5 socks5, string modInfo, string gameId, string forwardAddress, int forwardPort,
-        string nickName, string userId, string userToken, IChannel channel, Action<string>? onJoinServer)
-    {
-        _socks5 = socks5;
-        ClientChannel = channel;
-        NickName = nickName;
-        ProtocolVersion = EnumProtocolVersion.None;
-        OnJoinServer = onJoinServer;
-        TaskGroup = new MultithreadEventLoopGroup();
-        Session = new GameSession(nickName, userId, userToken);
-        GameId = gameId;
-        ModInfo = modInfo;
-        ForwardPort = forwardPort;
-        ForwardAddress = forwardAddress;
-        Uuid = new byte[16];
-    }
 
     public void Prepare()
     {
         _initialized = false;
-        var flag = _workerGroup != null;
-        if (flag) Shutdown();
+        if (_workerGroup != null) Shutdown();
         _workerGroup = new MultithreadEventLoopGroup();
         var bootstrap = new Bootstrap().Group(_workerGroup).Channel<TcpSocketChannel>()
             .Option(ChannelOption.TcpNodelay, true)
@@ -69,23 +62,23 @@ public class GameConnection : IConnection
             .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(30.0))
             .Handler(new ActionChannelInitializer<IChannel>(delegate(IChannel channel)
             {
-                var enabled = _socks5.Enabled;
+                var enabled = socks5.Enabled;
                 if (enabled)
                 {
-                    var flag3 = !IPAddress.TryParse(_socks5.Address, out var ipaddress);
+                    var flag3 = !IPAddress.TryParse(socks5.Address, out var ipAddress);
                     if (flag3)
-                        ipaddress = Dns.GetHostAddressesAsync(_socks5.Address).GetAwaiter().GetResult()
+                        ipAddress = Dns.GetHostAddressesAsync(socks5.Address).GetAwaiter().GetResult()
                             .First();
                     channel.Pipeline.AddLast("socks5",
-                        new Socks5ProxyHandler(new IPEndPoint(ipaddress, _socks5.Port), _socks5.Username,
-                            _socks5.Password));
+                        new Socks5ProxyHandler(new IPEndPoint(ipAddress, socks5.Port), socks5.Username,
+                            socks5.Password));
                 }
 
                 channel.Pipeline.AddLast("splitter", new MessageDeserializer21Bit());
                 channel.Pipeline.AddLast("handler", new ClientHandler(this))
                     .AddLast("pre-encoder", new MessageSerializer21Bit()).AddLast("encoder", new MessageSerializer());
             }));
-        Task.Run(async delegate
+        Task.Run(async () =>
         {
             var finalAddress = EventManager.Instance.TriggerEvent("channel_connection",
                 new EventParseAddress(this, ForwardAddress, ForwardPort));
@@ -112,7 +105,6 @@ public class GameConnection : IConnection
                         return channel3;
                     });
             var serverChannel = channel2;
-            channel2 = null;
             ServerChannel = serverChannel;
             _initialized = true;
         });
@@ -185,13 +177,9 @@ public class GameConnection : IConnection
                 }
 
                 var flag3 = packet.HandlePacket(this);
-                if (flag3)
+                buffer.ResetReaderIndex();
+                if (!flag3)
                 {
-                    buffer.ResetReaderIndex();
-                }
-                else
-                {
-                    buffer.ResetReaderIndex();
                     onRedirect(packet);
                 }
             }
@@ -231,9 +219,8 @@ public class GameConnection : IConnection
             .AddBefore("pre-encoder", "encrypt", new NettyEncryptionEncoder(secretKey));
     }
 
-    public readonly IChannel ClientChannel;
+    public readonly IChannel ClientChannel = channel;
     private bool _initialized;
-    private MultithreadEventLoopGroup _workerGroup;
-    public IChannel ServerChannel;
-    private readonly EntitySocks5 _socks5;
+    private MultithreadEventLoopGroup? _workerGroup;
+    public IChannel? ServerChannel;
 }

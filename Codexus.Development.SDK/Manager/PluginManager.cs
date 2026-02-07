@@ -199,7 +199,7 @@ public class PluginManager
         var hashSet = new HashSet<string>();
         var hashSet2 = new HashSet<string>();
         CollectDependencyPaths(pluginId, hashSet, hashSet2, excludeRule);
-        return hashSet.ToList<string>();
+        return hashSet.ToList();
     }
 
     private void CollectDependencyPaths(string pluginId, HashSet<string> pathSet, HashSet<string> visitedPlugins,

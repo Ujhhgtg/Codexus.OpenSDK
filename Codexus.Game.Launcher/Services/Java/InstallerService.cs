@@ -418,7 +418,7 @@ public static class InstallerService
 
     private static void InstallCustomMods(string mods)
     {
-        FileUtil.EnumerateFiles(PathUtil.CustomModsPath, "jar").ToList<string>().ForEach(delegate(string f)
+        FileUtil.EnumerateFiles(PathUtil.CustomModsPath, "jar").ToList().ForEach(delegate(string f)
         {
             FileUtil.CopyFileSafe(f, Path.Combine(mods, Path.GetFileName(f)));
         });

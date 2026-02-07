@@ -40,7 +40,7 @@ public class CHandshake : IPacket
     public bool HandlePacket(GameConnection connection)
     {
         var isCancelled = EventManager.Instance
-            .TriggerEvent<EventHandshake>(MessageChannels.AllVersions, new EventHandshake(connection, this))
+            .TriggerEvent(MessageChannels.AllVersions, new EventHandshake(connection, this))
             .IsCancelled;
         bool flag;
         if (isCancelled)
