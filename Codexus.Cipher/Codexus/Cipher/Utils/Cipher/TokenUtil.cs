@@ -18,8 +18,8 @@ public static class TokenUtil
 		Aes.Padding = PaddingMode.Zeros;
 		Aes.KeySize = 128;
 		Aes.BlockSize = 128;
-		Aes.Key = "debbde3548928fab\0"u8.ToArray();
-		Aes.IV = "afd4c5c5a7c456a1\0"u8.ToArray();
+		Aes.Key = "debbde3548928fab"u8.ToArray();
+		Aes.IV = "afd4c5c5a7c456a1"u8.ToArray();
 	}
 
 	// Token: 0x0600008E RID: 142 RVA: 0x00003B50 File Offset: 0x00001D50

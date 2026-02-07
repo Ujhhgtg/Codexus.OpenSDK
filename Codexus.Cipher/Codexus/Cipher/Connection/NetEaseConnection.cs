@@ -235,7 +235,7 @@ public static class NetEaseConnection
 {
     private static readonly byte[] TokenKey = [172, 36, 156, 105, 199, 44, 179, 180, 78, 192, 204, 108, 84, 58, 129, 149
     ];
-    private static readonly byte[] ChaChaNonce = "163 NetEase\n\0"u8.ToArray();
+    private static readonly byte[] ChaChaNonce = "163 NetEase\n"u8.ToArray();
 
     public static int RandomAuthPort() => new Random().Next(0, 4) switch {
         0 => 10200, 1 => 10600, 2 => 10400, _ => 10000
