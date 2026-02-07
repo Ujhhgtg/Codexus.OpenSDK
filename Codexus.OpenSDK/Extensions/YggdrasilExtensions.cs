@@ -133,13 +133,13 @@ public static class YggdrasilExtensions
         public void WriteShortString(string value, bool littleEndian = true)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
-            WriteShort(stream, bytes.Length, littleEndian);
+            stream.WriteShort(bytes.Length, littleEndian);
             stream.Write(bytes);
         }
 
         public void WriteShortBytes(byte[] data, bool littleEndian = true)
         {
-            WriteShort(stream, data.Length, littleEndian);
+            stream.WriteShort(data.Length, littleEndian);
             stream.Write(data);
         }
     }

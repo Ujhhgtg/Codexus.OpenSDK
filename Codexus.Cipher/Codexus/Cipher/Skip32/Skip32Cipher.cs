@@ -1,0 +1,174 @@
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Codexus.Cipher.Skip32;
+
+// Token: 0x0200001E RID: 30
+public class Skip32Cipher
+{
+	// Token: 0x0600009D RID: 157 RVA: 0x000042E8 File Offset: 0x000024E8
+	public Skip32Cipher(byte[] key)
+	{
+		var flag = key.Length != 10;
+		if (flag)
+		{
+			const string text = "key";
+			var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(19, 1);
+			defaultInterpolatedStringHandler.AppendLiteral("Key must be ");
+			defaultInterpolatedStringHandler.AppendFormatted(10);
+			defaultInterpolatedStringHandler.AppendLiteral(" bytes.");
+			throw new ArgumentOutOfRangeException(text, defaultInterpolatedStringHandler.ToStringAndClear());
+		}
+		_key = key;
+	}
+
+	// Token: 0x0600009E RID: 158 RVA: 0x00004354 File Offset: 0x00002554
+	private static int G(byte[] key, int k, int w)
+	{
+		var num = w >> 8;
+		var num2 = w & 255;
+		var num3 = FTable[num2 ^ key[4 * k % 10] & byte.MaxValue] ^ num;
+		var num4 = FTable[num3 ^ key[(4 * k + 1) % 10] & byte.MaxValue] ^ num2;
+		var num5 = FTable[num4 ^ key[(4 * k + 2) % 10] & byte.MaxValue] ^ num3;
+		var num6 = FTable[num5 ^ key[(4 * k + 3) % 10] & byte.MaxValue] ^ num4;
+		return (num5 << 8) + num6;
+	}
+
+	// Token: 0x0600009F RID: 159 RVA: 0x000043E8 File Offset: 0x000025E8
+	private void Skip32(int[] buf, bool encrypt)
+	{
+		int num;
+		int num2;
+		if (encrypt)
+		{
+			num = 1;
+			num2 = 0;
+		}
+		else
+		{
+			num = -1;
+			num2 = 23;
+		}
+		var num3 = (buf[0] << 8) + buf[1];
+		var num4 = (buf[2] << 8) + buf[3];
+		for (var i = 0; i < 12; i++)
+		{
+			num4 ^= G(_key, num2, num3) ^ num2;
+			num2 += num;
+			num3 ^= G(_key, num2, num4) ^ num2;
+			num2 += num;
+		}
+		buf[0] = num4 >> 8;
+		buf[1] = num4 & 255;
+		buf[2] = num3 >> 8;
+		buf[3] = num3 & 255;
+	}
+
+	// Token: 0x060000A0 RID: 160 RVA: 0x00004488 File Offset: 0x00002688
+	public uint Encrypt(uint value)
+	{
+		return (uint)Encrypt((int)value);
+	}
+
+	// Token: 0x060000A1 RID: 161 RVA: 0x000044A4 File Offset: 0x000026A4
+	public int Encrypt(int value)
+	{
+		var array = new[]
+		{
+			(value >> 24) & 255,
+			(value >> 16) & 255,
+			(value >> 8) & 255,
+			value & 255
+		};
+		Skip32(array, true);
+		return (array[0] << 24) | (array[1] << 16) | (array[2] << 8) | array[3];
+	}
+
+	// Token: 0x060000A2 RID: 162 RVA: 0x00004510 File Offset: 0x00002710
+	public uint Decrypt(uint value)
+	{
+		return (uint)Decrypt((int)value);
+	}
+
+	// Token: 0x060000A3 RID: 163 RVA: 0x0000452C File Offset: 0x0000272C
+	public int Decrypt(int value)
+	{
+		var array = new[]
+		{
+			(value >> 24) & 255,
+			(value >> 16) & 255,
+			(value >> 8) & 255,
+			value & 255
+		};
+		Skip32(array, false);
+		return (array[0] << 24) | (array[1] << 16) | (array[2] << 8) | array[3];
+	}
+
+	// Token: 0x060000A4 RID: 164 RVA: 0x00004598 File Offset: 0x00002798
+	public string GenerateRoleUuid(string roleName, uint userId)
+	{
+		var array = MD5.HashData(Encoding.UTF8.GetBytes(roleName));
+		var bytes = BitConverter.GetBytes(Encrypt(userId));
+		Buffer.BlockCopy(bytes, 0, array, 12, bytes.Length);
+		array[6] = (byte)((array[6] & 15) | 64);
+		array[8] = (byte)((array[8] & 63) | 128);
+		return Convert.ToHexStringLower(array);
+	}
+
+	// Token: 0x060000A5 RID: 165 RVA: 0x000045FC File Offset: 0x000027FC
+	public uint ComputeUserIdFromUuid(string uuid)
+	{
+		uuid = uuid.Replace("-", "");
+		var flag = uuid.Length != 32;
+		uint num;
+		if (flag)
+		{
+			num = 0U;
+		}
+		else
+		{
+			var num2 = BitConverter.ToUInt32(Convert.FromHexString(uuid), 12);
+			num = Decrypt(num2);
+		}
+		return num;
+	}
+
+	// Token: 0x04000048 RID: 72
+	private const int KeySize = 10;
+
+	// Token: 0x04000049 RID: 73
+	private static readonly byte[] FTable =
+	[
+		163, 215, 9, 131, 248, 72, 246, 244, 179, 33,
+		21, 120, 153, 177, 175, 249, 231, 45, 77, 138,
+		206, 76, 202, 46, 82, 149, 217, 30, 78, 56,
+		68, 40, 10, 223, 2, 160, 23, 241, 96, 104,
+		18, 183, 122, 195, 233, 250, 61, 83, 150, 132,
+		107, 186, 242, 99, 154, 25, 124, 174, 229, 245,
+		247, 22, 106, 162, 57, 182, 123, 15, 193, 147,
+		129, 27, 238, 180, 26, 234, 208, 145, 47, 184,
+		85, 185, 218, 133, 63, 65, 191, 224, 90, 88,
+		128, 95, 102, 11, 216, 144, 53, 213, 192, 167,
+		51, 6, 101, 105, 69, 0, 148, 86, 109, 152,
+		155, 118, 151, 252, 178, 194, 176, 254, 219, 32,
+		225, 235, 214, 228, 221, 71, 74, 29, 66, 237,
+		158, 110, 73, 60, 205, 67, 39, 210, 7, 212,
+		222, 199, 103, 24, 137, 203, 48, 31, 141, 198,
+		143, 170, 200, 116, 220, 201, 93, 92, 49, 164,
+		112, 136, 97, 44, 159, 13, 43, 135, 80, 130,
+		84, 100, 38, 125, 3, 64, 52, 75, 28, 115,
+		209, 196, 253, 59, 204, 251, 127, 171, 230, 62,
+		91, 165, 173, 4, 35, 156, 20, 81, 34, 240,
+		41, 121, 113, 126, byte.MaxValue, 140, 14, 226, 12, 239,
+		188, 114, 117, 111, 55, 161, 236, 211, 142, 98,
+		139, 134, 16, 232, 8, 119, 17, 190, 146, 79,
+		36, 197, 50, 54, 157, 207, 243, 166, 187, 172,
+		94, 108, 169, 19, 87, 37, 181, 227, 189, 168,
+		58, 1, 5, 89, 42, 70
+	];
+
+	// Token: 0x0400004A RID: 74
+	private readonly byte[] _key;
+}
